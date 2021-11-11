@@ -2,7 +2,6 @@
 /*                                                   */
 /* Created By George Papageorgiou                    */
 /* AEM: 2600                                         */
-/* Sxediasmos kiklwmatwn gia iontizonta perivalonta  */
 /*                                                   */
 /*****************************************************/ 
 
@@ -15,7 +14,6 @@
 
 #define SIZE 512
 #define MAX_FANOUT 50
-#define fileOpen "s27_mapped.v"
 
 int main(int argc, char *argv[]){
     char input[500];
@@ -62,7 +60,7 @@ int main(int argc, char *argv[]){
 
 //     print list here
 //     printGate(listhead);
-//     printWire(headwire);
+//      printWire(headwire);
 
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
@@ -111,6 +109,9 @@ int main(int argc, char *argv[]){
                 counterforinput++;
             }
         }
+
+        //Calculate new values of the circuit
+        //make function void update circuit status
 
 
         counterforinput=0;

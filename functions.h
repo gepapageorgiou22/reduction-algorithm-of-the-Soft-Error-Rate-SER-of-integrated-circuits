@@ -29,3 +29,6 @@ void printWire(struct wire *head);
 //Free pointers
 void FreeMem(struct gate **ptr);
 void FreeMemWire(struct wire **ptr);
+
+//Function to do iterations to calculate new values of the circuit
+void circuitRun(struct wire *headwire, struct gate *headGate);

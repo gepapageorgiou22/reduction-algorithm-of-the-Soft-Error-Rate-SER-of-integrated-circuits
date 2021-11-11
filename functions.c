@@ -748,3 +748,32 @@ void connect(struct gate *headgate, struct wire *headwire){
 
 }
 /******************************************************************************************************************************************************/
+
+//Function used to virtualy run the circuit
+void circuitRun(struct wire *headWire, struct gate *headGate){
+    struct wire *wireIterator, *wireTemp;
+    struct gate *gateIterator, *gateTemp;
+
+    wireIterator = headWire;
+    gateIterator = headGate;
+
+    while(gateIterator != NULL){
+
+    }
+}
+
+// struct gate *nodeFound(struct gate *head, )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
