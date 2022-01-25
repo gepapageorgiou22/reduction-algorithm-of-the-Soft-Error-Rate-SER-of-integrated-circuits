@@ -4,6 +4,7 @@ struct gate{
     char gate_output[100];
     char gate_type[50];
     int input, output;
+    int layer;
     struct gate *next;
     //struct wire *next[10] = NULL;
     //I will point to node n
@@ -15,5 +16,6 @@ struct gate{
 struct wire{
     char node_name[50];
     unsigned short int value;
+    int layer;
     struct wire *next;
 };

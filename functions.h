@@ -18,6 +18,9 @@ void inputFix(char input[]);
 //Connect struct gate with wires
 void connect(struct gate *headgate, struct wire *headwire);
 
+//Function to set 0 level at the flip flops
+void levelSetToDFlipFlops(struct gate *headGate);
+
 //Set array pointers to null
 void null(struct gate *head);
 
@@ -32,3 +35,7 @@ void FreeMemWire(struct wire **ptr);
 
 //Function to do iterations to calculate new values of the circuit
 void circuitRun(struct wire *headwire, struct gate *headGate);
+struct gate *createCircuitInOrder(struct gate *headGate, struct wire *headWire);
+
+//Set levels to the wires
+void levelSet(struct wire *headwire, struct gate *headGate);

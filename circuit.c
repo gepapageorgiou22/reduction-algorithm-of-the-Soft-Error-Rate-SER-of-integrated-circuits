@@ -86,6 +86,11 @@ int main(int argc, char *argv[]){
 
     inputFix(input);
 
+//     if(createCircuitInOrder(listhead, headwire) == NULL){
+//         printf("Error\n");
+//     }
+
+    //Not correct need to do that after setting levels
     for(int counter=0; counter<repeat; counter++){
         while(strlen(input) >= counterforinput ){
             if(input[counterforinput] == ' ' || counterforinput == strlen(input)){
@@ -118,6 +123,7 @@ int main(int argc, char *argv[]){
     }
 
     printWire(headwire);
+    printGate(listhead);
 
     //Free the list
     FreeMem(&listhead);
