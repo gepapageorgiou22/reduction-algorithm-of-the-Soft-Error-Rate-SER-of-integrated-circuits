@@ -48,7 +48,7 @@ void printGate(struct gate *head){
     struct gate *curr = head;
 
     while(curr!=NULL){
-       printf("%s\n%s\n%s\n%s\n", curr->gate_name, curr->gate_inputs, curr->gate_output, curr->gate_type);
+       printf("Gate with name: %s has type: %s and level: %d\n", curr->gate_name, curr->gate_type,curr->layer);
        printf("\n");
        curr = curr->next;
     }
@@ -62,6 +62,7 @@ void printWire(struct wire *head){
 
     while(curr!=NULL){
        printf("Node wire with name: %s and Value: %d\n", curr->node_name, curr->value);
+       printf("Current level is: %d\n", curr->layer);
        curr = curr->next;
     }
 }
@@ -415,11 +416,13 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
             }
             BasicDataSpliter(head, read);
             head->next = NULL;
+            head->layer = -1;
             lineread++;
             SetZero(str, SIZE);
             SetZero(readtemp, 600);
             SetZero(read, 600);
             tnode = head;
+
             continue;
         }
         curr = (struct gate *)malloc(sizeof(struct gate));
@@ -430,6 +433,7 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
 
         //Fix first list
         tnode->next = curr;
+        curr->layer = -1;
         curr->next = NULL;
         BasicDataSpliter(curr, read);
         lineread++;
@@ -618,6 +622,12 @@ struct wire *InitializeWireList(char input[], char output[], char wire[]){
         counter++;
     }
     strcpy(head->node_name, temporary);
+    if(strstr(input, temporary) != NULL){
+        head->layer = 0;
+    }
+    else{
+        head->layer = -1;
+    }
 
     curr = head;
 
@@ -644,7 +654,12 @@ struct wire *InitializeWireList(char input[], char output[], char wire[]){
             counter1++;
             i++;
         }
-
+        if(strstr(input, temporary) != NULL){
+            temp->layer = 0;
+        }
+        else{
+            temp->layer = -1;
+        }
         strcpy(temp->node_name, temporary);
         temp->value = 0;
         curr->next = temp;
@@ -745,6 +760,8 @@ void connect(struct gate *headgate, struct wire *headwire){
         currgate->gate_output[strlen(currgate->gate_output)-1] = '\0';
     }
 
+    //Setting level to the flip flops after connecting gates with wires
+    levelSetToDFlipFlops(headgate);
 
 }
 /******************************************************************************************************************************************************/
@@ -764,6 +781,79 @@ void circuitRun(struct wire *headWire, struct gate *headGate){
 
 // struct gate *nodeFound(struct gate *head, )
 
+void listDel(struct gate *head, struct gate *todel){
+    struct gate *iterator, *temp;
+
+    iterator = head;
+
+    while(iterator != todel){
+        temp = iterator;
+        iterator = iterator->next;
+    }
+
+    temp->next = iterator->next;
+    free(iterator); //Should i free it or at the end of the list???????
+}
+
+struct gate *createCircuitInOrder(struct gate *headGate, struct wire *headWire){
+    struct gate *tempHead; //Temporary listhead to fix the circuit in layers
+    struct gate *temp, *tempgate;
+    struct gate *newHead; //new gate list gate
+    struct gate *newTemp;
+
+    struct wire *tempHeadWire;
+    struct wire *tempwire;
+
+    tempgate = headGate;
+    tempHeadWire = headWire;
+
+//     newHead = (struct gate*)malloc(sizeof(struct gate));
+//     if(newHead == NULL){
+//         printf("Error creating level order list\n");
+//         exit -1;
+//     }
+//
+//     newHead->next = NULL;
+//     newHead->layer = 0;
+
+    //Set 0 layer for every flip flop
+    while(tempgate != NULL){
+        if(strcmp(tempgate->gate_type, "D_Flif_Flop")==0){
+            tempgate->outputs[0]->layer = 0;
+            if(tempgate->outputs[1] != NULL){
+                tempgate->outputs[1]->layer = 0;
+            }
+        }
+        tempgate = tempgate->next;
+     }
+
+     return NULL;
+
+}
+
+void levelSetToDFlipFlops(struct gate *headGate){
+
+    struct gate *curr = headGate;
+
+    while(curr != NULL){
+        if(strcmp(curr->gate_type, "D_Flif_Flop") == 0){ //Found Flip FLop
+            curr->layer = 0;
+        }
+        curr = curr->next;
+    }
+}
+
+
+//Set levels to the wires
+void levelSet(struct wire *headwire, struct gate *headGate){
+
+    struct wire *wireTemp = headwire;
+    struct gate *gateTemp;
+
+
+
+
+}
 
 
 
