@@ -49,7 +49,6 @@ void printGate(struct gate *head){
 
     while(curr!=NULL){
        printf("Gate with name: %s has type: %s and level: %d\n", curr->gate_name, curr->gate_type,curr->layer);
-       printf("\n");
        curr = curr->next;
     }
 
@@ -164,7 +163,7 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]){
     char type[30];
     strcpy(type, ptr->gate_name);
     //You have 2 spaces before a letter
-    if(type[0] == 'D'){
+    if(type[0] == 'D' || type[1] == 'D'){
         strcpy(ptr->gate_type ,"D_Flif_Flop");
     }
     else if(type[0] == 'O'){
@@ -766,21 +765,6 @@ void connect(struct gate *headgate, struct wire *headwire){
 }
 /******************************************************************************************************************************************************/
 
-//Function used to virtualy run the circuit
-void circuitRun(struct wire *headWire, struct gate *headGate){
-    struct wire *wireIterator, *wireTemp;
-    struct gate *gateIterator, *gateTemp;
-
-    wireIterator = headWire;
-    gateIterator = headGate;
-
-    while(gateIterator != NULL){
-
-    }
-}
-
-// struct gate *nodeFound(struct gate *head, )
-
 void listDel(struct gate *head, struct gate *todel){
     struct gate *iterator, *temp;
 
@@ -795,41 +779,6 @@ void listDel(struct gate *head, struct gate *todel){
     free(iterator); //Should i free it or at the end of the list???????
 }
 
-struct gate *createCircuitInOrder(struct gate *headGate, struct wire *headWire){
-    struct gate *tempHead; //Temporary listhead to fix the circuit in layers
-    struct gate *temp, *tempgate;
-    struct gate *newHead; //new gate list gate
-    struct gate *newTemp;
-
-    struct wire *tempHeadWire;
-    struct wire *tempwire;
-
-    tempgate = headGate;
-    tempHeadWire = headWire;
-
-//     newHead = (struct gate*)malloc(sizeof(struct gate));
-//     if(newHead == NULL){
-//         printf("Error creating level order list\n");
-//         exit -1;
-//     }
-//
-//     newHead->next = NULL;
-//     newHead->layer = 0;
-
-    //Set 0 layer for every flip flop
-    while(tempgate != NULL){
-        if(strcmp(tempgate->gate_type, "D_Flif_Flop")==0){
-            tempgate->outputs[0]->layer = 0;
-            if(tempgate->outputs[1] != NULL){
-                tempgate->outputs[1]->layer = 0;
-            }
-        }
-        tempgate = tempgate->next;
-     }
-
-     return NULL;
-
-}
 
 void levelSetToDFlipFlops(struct gate *headGate){
 
@@ -845,25 +794,277 @@ void levelSetToDFlipFlops(struct gate *headGate){
 
 
 //Set levels to the wires
-void levelSet(struct wire *headwire, struct gate *headGate){
+ void levelSet(struct wire *headwire, struct gate *headGate){
 
-    struct wire *wireTemp = headwire;
-    struct gate *gateTemp;
+//     struct wire *wireTemp = headwire;
+//     struct gate *gateTemp;
 
+ }
 
+struct gate *rebuildLevelOrderLayer0(struct gate **head){
+    struct gate *newHead;
+    struct gate *newListTemp;
+    struct gate *temp, *ptrReFix;
 
+    temp = *head;
+
+    //Find node with level 0 to make it head to the new list
+    while(temp->layer != 0){
+        ptrReFix = temp;
+        temp = temp->next;
+    }
+    
+    //Node must been found
+    newHead = temp;
+
+    //Check if that node was head and build head if so
+    if(temp == *head){
+        *head = temp->next;
+    }
+    else{
+        //Fix pointers for next, and the old list
+        ptrReFix->next = temp->next;
+    }  
+    
+    newHead->next = NULL;
+    
+    temp = *head;
+    newListTemp = newHead; 
+
+    //Build evrything in level 0
+    while(temp != NULL){
+
+        if(temp->layer == 0){
+            if(temp == *head){
+                *head = (*head)->next;
+                newListTemp->next = temp;
+                newListTemp = newListTemp->next;
+                temp = temp->next;
+                newListTemp->next = NULL;
+                continue;
+            }
+            else{
+                newListTemp->next = temp;
+                newListTemp = newListTemp->next;
+                newListTemp->next = NULL;
+                ptrReFix->next = temp->next;
+            }
+        }
+        ptrReFix = temp;
+        temp = temp->next;
+    }
+    temp = *head;
+    while(temp != NULL){
+        temp=temp->next;
+    }
+    return newHead;
+}
+
+void restGatesLeveled(struct gate *head, struct wire *headWire, int level){
+
+    struct gate *iterator;
+    int counter, inputCount;
+    int pos;
+    int flag;
+
+    iterator = head;
+
+    //Set levels
+    while(iterator != NULL){
+        if(strcmp(iterator->gate_type,"D_Flif_Flop") == 0 ){
+            iterator = iterator->next;
+            continue;
+        }
+
+        //initialize count
+        counter = 0;
+        inputCount = 0;
+        //Finding number of inputs of a gate so later to check the layer of the wire
+        while(iterator->inputs[counter] != NULL){
+            inputCount++;
+            counter++;
+        }
+        flag = 0;
+        for(pos=0; pos<inputCount; pos++){
+            if(iterator->inputs[pos]->layer <= level && iterator->inputs[pos]->layer >= 0){
+                //Do nothing
+            }
+            else{
+                flag=1;
+            }
+        }
+        if(flag == 0){
+            iterator->layer = level;
+        }
+        else{
+            iterator->layer = -1;
+        }
+        iterator = iterator->next;
+    }
 
 }
 
+//Curently not in Use
+int wireLevelReturn(struct wire *headWire, char *name){
+    struct wire *tmp;
+
+    tmp = headWire;
+
+    while(tmp != NULL){
+        if(strcmp(tmp->node_name, name) == 0){
+            return tmp->layer;
+        }
+        tmp = tmp->next;
+    }
+    return -1;
+}
+
+//This function fixes the level of the wires after a gate in the final list, starting from given level
+void levelingWireAfterGate(struct gate *headGate, struct wire *wireHead, int level){
+    struct gate *iterator;
+
+    iterator = headGate;
+
+    while(iterator != NULL){
+        if(iterator->layer == level){
+            iterator->outputs[0]->layer = iterator->layer + 1;
+            if(iterator->outputs[1] != NULL){
+                iterator->outputs[1]->layer = iterator->layer + 1;
+            }
+        }
+       iterator = iterator->next; 
+    }
+}
 
 
+//Working Fine to give a gate a level based on wire inputs given level.
+void fixGateLevel(struct gate **head, struct gate *list3, int level){
+    struct gate *iterator, *finalList, *tmp, *tmp1;
+    int pos, flag, maxLayer;
+    int inputCount;
+    int times=0;
+    int stored=0;
+
+    iterator = *head;
+    tmp1 = *head;
+    while(tmp1 != NULL){
+        stored++;
+        tmp1 = tmp1->next;
+    }
+
+    finalList=list3;
+
+    //Go to the end of the final list
+    while(finalList->next != NULL){
+        finalList = finalList->next;
+    }
+
+    tmp1 = *head;
+    stored = 0;
+    while(tmp1 != NULL){
+        stored++;
+        tmp1 = tmp1->next;
+    }
+    
+    int newtemp;
+
+    while(iterator != NULL){
+        times++;
+        pos = 0;
+        inputCount = 0;
+        maxLayer = 0;
+        flag = 0;
+
+        while(iterator->inputs[pos] != NULL){
+            inputCount++;
+            pos++;
+        }
+
+        for(newtemp=0; newtemp<inputCount; newtemp++){
+            //Check if wires are valid
+            if(iterator->inputs[newtemp]->layer > -1 && iterator->inputs[newtemp]->layer <= level){
+                if(iterator->inputs[newtemp]->layer > maxLayer){
+                    maxLayer = iterator->inputs[newtemp]->layer;
+                }
+            }
+            else{
+                flag=1;
+                break;
+            }
+        }
+
+        if(flag == 0){
+            //check if head
+            if(iterator == *head){
+                *head = (*head)->next;
+                finalList->next = iterator;
+                finalList = finalList->next;
+                finalList->next = NULL;
+                finalList->layer = maxLayer;
+                
+                //Fix now wire level after the inserted gate
+                finalList->outputs[0]->layer = maxLayer + 1;
+                if(finalList->outputs[1] != NULL){
+                    finalList->outputs[1]->layer = maxLayer + 1;
+                }
+
+                iterator = *head;
+                continue;
+            }
+            //else add and fix ptrs
+            else{
+                tmp->next = iterator->next;
+                finalList->next = iterator;
+                finalList = finalList->next;
+                finalList->next = NULL;
+                finalList->layer = maxLayer;
+                
+                //Fix now wire level after the inserted gate
+                finalList->outputs[0]->layer = maxLayer + 1;
+                if(finalList->outputs[1] != NULL){
+                    finalList->outputs[1]->layer = maxLayer + 1;
+                }
+                iterator = tmp->next;
+                continue;
+            }
+        }
+        else{
+            tmp=iterator;
+            iterator = iterator->next;
+            continue;
+        }
+        iterator = iterator->next;
+    }
+}
+
+void buildCircuitLeveled(struct gate **head, struct gate *list3){
+    //struct gate *iterator;
+    int levelToBuild; //Remember level 0 is already built
+
+    levelToBuild = 1; //Start from level 1 since level 0 is ready
+    while(*head != NULL){
+        fixGateLevel(head, list3, levelToBuild);
+        levelToBuild++;
+    }
+
+}
+
+void dataToFile(char *dataStr){
+    
+    FILE *fp;
+
+    fp = fopen("data/inputs_outputs_logs.txt", "w+");
 
 
+    /* fopen() return NULL if last operation was unsuccessful */
+    if(fp == NULL)
+    {
+        /* File not created hence exit */
+        printf("Unable to create or open file.\n");
+        exit(EXIT_FAILURE);
+    }
 
+    fprintf(fp, "%s\n", dataStr);
 
-
-
-
-
-
-
+    fclose(fp);
+}
