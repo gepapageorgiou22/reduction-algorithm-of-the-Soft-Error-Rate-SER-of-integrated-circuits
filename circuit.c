@@ -19,6 +19,7 @@ int main(int argc, char *argv[]){
     char input[500];
     char output[500];
     char wires[3000];
+    char data[10000];
     
     struct gate *listhead;
     struct wire *headwire;
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]){
     SetZero(input, 500);
     SetZero(output, 500);
     SetZero(wires, 3000);
+    SetZero(data, 10000);
 
     //Create List to work with
     listhead = CreateInitialList(input, output, wires);
@@ -49,18 +51,8 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    ////////////////////////////////////
-    //                                //
-    //                                //
-    //   CONNECT LIST WIRE-GATE NOW   //
+    // Connect initial gate-wire list
     connect(listhead, headwire);
-    //                                //
-    //                                //
-    ////////////////////////////////////
-
-//     print list here
-//     printGate(listhead);
-//      printWire(headwire);
 
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
@@ -86,17 +78,37 @@ int main(int argc, char *argv[]){
 
     inputFix(input);
 
-//     if(createCircuitInOrder(listhead, headwire) == NULL){
-//         printf("Error\n");
-//     }
+    struct gate *gateList3Head;
+    restGatesLeveled(listhead, headwire, 0);
+    gateList3Head = rebuildLevelOrderLayer0(&listhead);
+    
+    //setting levels to the next wires.
+    levelingWireAfterGate(gateList3Head, headwire, 0);
+    
+    //This function does the connection between the lists
+    //It builds a new list without more memmory allocated
+    //The new list is in levels.
+    buildCircuitLeveled(&listhead, gateList3Head);
+
+
 
     //Not correct need to do that after setting levels
     for(int counter=0; counter<repeat; counter++){
+        strcat(data, "Run #"); //Fixing string to store input-output into a file
+        sprintf(data, "%s%d\n", data, counter);
+
         while(strlen(input) >= counterforinput ){
             if(input[counterforinput] == ' ' || counterforinput == strlen(input)){
                 printf("Please enter Value for input wire (%s): ", search);
                 //Need a scanf here with search wire list and store the value
                 scanf(" %d", &valuetopass);
+                
+                //All these strcats are building the string to go to output
+                strcat(data, "\tWire "); 
+                strcat(data, search);
+                strcat(data, ": ");
+                sprintf(data, "%s%d\n", data, valuetopass);
+                
                 tmp = FindCheck(headwire, search);
                 if(tmp == NULL ){
                     printf("Something went wrong!\n");
@@ -114,21 +126,21 @@ int main(int argc, char *argv[]){
                 counterforinput++;
             }
         }
-
+        dataToFile(data);
         //Calculate new values of the circuit
         //make function void update circuit status
-
 
         counterforinput=0;
     }
 
     printWire(headwire);
-    printGate(listhead);
+    printf("\n\nPrinting Level Order List\n\n");
+    printGate(gateList3Head);
 
     //Free the list
     FreeMem(&listhead);
     FreeMemWire(&headwire);
-
+    FreeMem(&gateList3Head);
     printf("\n");
     
     return 0;
