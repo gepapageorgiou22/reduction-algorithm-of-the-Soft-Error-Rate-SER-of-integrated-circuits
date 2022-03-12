@@ -1,0 +1,8 @@
+Run #0
+	Wire GND: 1
+	Wire VDD: 1
+	Wire CK: 1
+	Wire G0: 1
+	Wire G1: 1
+	Wire G2: 1
+
