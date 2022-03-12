@@ -1,29 +1,17 @@
 #include "structs.h"
 
 //Functions
-
 //Function to set \0 string
 void SetZero(char str[], int size);
-
-/********** Functions and help function to split incoming Data ************/
 void BasicDataSpliter(struct gate *ptr, char tosplit[]);
 void InputOutputSpliter(struct gate *ptr, char tosplit[]);
 char * StringSplit(char tosplit[]);
 int FindInputOutputs(char stringforsearch[]);
-/********** End of functions spliting Data **************/
-
-//Function to Create List1(Initial list without levels)
 struct gate *CreateInitialList(char *input, char *output, char *wires);
-
-//Function to find a gate with a name stringforsearch
 struct gate *Find(struct gate *ptr, char stringforsearch[], struct gate *value[]);
 void counts(struct gate *head);
-
-//Function to find a specific wire and returns the pointer to the found wire. If not found Null is returned
 struct wire *FindCheck(struct wire *ptr, char stringforsearch[]);
 void StringForWireList(char input[], char output[], char wire[], char str[]);
-
-//Function that initializes the wire list (list2)
 struct wire *InitializeWireList(char input[], char output[], char wire[]);
 void inputFix(char input[]);
 
@@ -47,6 +35,7 @@ void FreeMemWire(struct wire **ptr);
 
 //Function to do iterations to calculate new values of the circuit
 void circuitRun(struct wire *headwire, struct gate *headGate);
+struct gate *createCircuitInOrder(struct gate *headGate, struct wire *headWire);
 
 //Function that fixes new list Level 0 only
 struct gate *rebuildLevelOrderLayer0(struct gate **head); //Fixes only flip flops due to other gates have no level
@@ -65,3 +54,9 @@ void buildCircuitLeveled(struct gate **head, struct gate *list3);
 
 //Function to write to a file inputs and output
 void dataToFile(char *dataStr);
+
+// This Function returns the type of the given gate 
+char *getType(struct gate *node);
+
+// This function runs the circuit.
+void run(struct gate *gateHead, struct wire *wireHead);

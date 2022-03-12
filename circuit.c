@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
     char input[500];
     char output[500];
     char wires[3000];
-    char data[10000];
+    char data[3000];
     
     struct gate *listhead;
     struct wire *headwire;
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
     SetZero(input, 500);
     SetZero(output, 500);
     SetZero(wires, 3000);
-    SetZero(data, 10000);
+    SetZero(data, 3000);
 
     //Create List to work with
     listhead = CreateInitialList(input, output, wires);
@@ -51,8 +51,18 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    // Connect initial gate-wire list
+    ////////////////////////////////////
+    //                                //
+    //                                //
+    //   CONNECT LIST WIRE-GATE NOW   //
     connect(listhead, headwire);
+    //                                //
+    //                                //
+    ////////////////////////////////////
+
+//     print list here
+//     printGate(listhead);
+//      printWire(headwire);
 
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
@@ -78,7 +88,7 @@ int main(int argc, char *argv[]){
 
     inputFix(input);
 
-    struct gate *gateList3Head;
+   struct gate *gateList3Head;
     restGatesLeveled(listhead, headwire, 0);
     gateList3Head = rebuildLevelOrderLayer0(&listhead);
     
@@ -126,12 +136,17 @@ int main(int argc, char *argv[]){
                 counterforinput++;
             }
         }
-        dataToFile(data);
+
         //Calculate new values of the circuit
         //make function void update circuit status
 
+        // Update output value on file
+
         counterforinput=0;
     }
+
+    //Write the data in to the file to have metrics 
+    dataToFile(data);
 
     printWire(headwire);
     printf("\n\nPrinting Level Order List\n\n");

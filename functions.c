@@ -6,7 +6,7 @@
 
 #define SIZE 512
 #define MAX_FANOUT 50
-#define fileOpen "s27_mapped.v"
+#define fileOpen "s298_mapped.v"
 
 
 //Creating all inputs that i will ask for a run
@@ -49,6 +49,7 @@ void printGate(struct gate *head){
 
     while(curr!=NULL){
        printf("Gate with name: %s has type: %s and level: %d\n", curr->gate_name, curr->gate_type,curr->layer);
+       printf("\n");
        curr = curr->next;
     }
 
@@ -765,6 +766,21 @@ void connect(struct gate *headgate, struct wire *headwire){
 }
 /******************************************************************************************************************************************************/
 
+//Function used to virtualy run the circuit
+void circuitRun(struct wire *headWire, struct gate *headGate){
+    // struct wire *wireIterator, *wireTemp;
+    // struct gate *gateIterator, *gateTemp;
+
+    // wireIterator = headWire;
+    // gateIterator = headGate;
+
+    // while(gateIterator != NULL){
+
+    // }
+}
+
+// struct gate *nodeFound(struct gate *head, )
+
 void listDel(struct gate *head, struct gate *todel){
     struct gate *iterator, *temp;
 
@@ -779,6 +795,41 @@ void listDel(struct gate *head, struct gate *todel){
     free(iterator); //Should i free it or at the end of the list???????
 }
 
+struct gate *createCircuitInOrder(struct gate *headGate, struct wire *headWire){
+//     struct gate *tempHead; //Temporary listhead to fix the circuit in layers
+//     struct gate *temp, *tempgate;
+//     struct gate *newHead; //new gate list gate
+//     struct gate *newTemp;
+
+//     struct wire *tempHeadWire;
+//     struct wire *tempwire;
+
+//     tempgate = headGate;
+//     tempHeadWire = headWire;
+
+// //     newHead = (struct gate*)malloc(sizeof(struct gate));
+// //     if(newHead == NULL){
+// //         printf("Error creating level order list\n");
+// //         exit -1;
+// //     }
+// //
+// //     newHead->next = NULL;
+// //     newHead->layer = 0;
+
+//     //Set 0 layer for every flip flop
+//     while(tempgate != NULL){
+//         if(strcmp(tempgate->gate_type, "D_Flif_Flop")==0){
+//             tempgate->outputs[0]->layer = 0;
+//             if(tempgate->outputs[1] != NULL){
+//                 tempgate->outputs[1]->layer = 0;
+//             }
+//         }
+//         tempgate = tempgate->next;
+//      }
+
+     return NULL;
+
+}
 
 void levelSetToDFlipFlops(struct gate *headGate){
 
@@ -817,6 +868,7 @@ struct gate *rebuildLevelOrderLayer0(struct gate **head){
     //Node must been found
     newHead = temp;
 
+    printf("Temp: %p\n", temp);
     //Check if that node was head and build head if so
     if(temp == *head){
         *head = temp->next;
@@ -836,7 +888,7 @@ struct gate *rebuildLevelOrderLayer0(struct gate **head){
 
         if(temp->layer == 0){
             if(temp == *head){
-                *head = (*head)->next;
+                *head = temp->next;
                 newListTemp->next = temp;
                 newListTemp = newListTemp->next;
                 temp = temp->next;
@@ -852,10 +904,6 @@ struct gate *rebuildLevelOrderLayer0(struct gate **head){
         }
         ptrReFix = temp;
         temp = temp->next;
-    }
-    temp = *head;
-    while(temp != NULL){
-        temp=temp->next;
     }
     return newHead;
 }
@@ -935,7 +983,6 @@ void levelingWireAfterGate(struct gate *headGate, struct wire *wireHead, int lev
        iterator = iterator->next; 
     }
 }
-
 
 //Working Fine to give a gate a level based on wire inputs given level.
 void fixGateLevel(struct gate **head, struct gate *list3, int level){
@@ -1053,7 +1100,7 @@ void dataToFile(char *dataStr){
     
     FILE *fp;
 
-    fp = fopen("data/inputs_outputs_logs.txt", "w+");
+    fp = fopen("/Users/giorgos.papageorgiou/Documents/just backup/data/inputs_outputs_logs.txt", "w+");
 
 
     /* fopen() return NULL if last operation was unsuccessful */
@@ -1068,3 +1115,40 @@ void dataToFile(char *dataStr){
 
     fclose(fp);
 }
+
+
+char *getType(struct gate *node){
+    return (node->gate_type);
+}
+
+// This function runs the circuit
+void run(struct gate *gateHead, struct wire *wireHead){
+
+    struct gate *gateIter;
+    struct wire *wireIter;
+
+    //This variable represents the value after a gate 
+    int value;
+
+    gateIter = gateHead;
+    wireIter = wireHead;
+
+    //Loop to iterate the list3 and create new values
+    while(gateIter != NULL){
+
+        //Based on gate type, perform actions numbers
+        //place it on the wire
+        
+        gateIter = gateIter->next;
+    }
+
+}
+
+
+
+
+
+
+
+
+
