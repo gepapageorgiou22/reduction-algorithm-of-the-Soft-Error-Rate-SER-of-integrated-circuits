@@ -346,7 +346,7 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
                 continue;
             }
             else{
-                exit -1;
+                return NULL;
             }
         }
 
@@ -361,7 +361,7 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
             }
             else{
                 printf("Temp is %s\n", temp);
-                exit -1;
+                return NULL;
             }
         }
 
@@ -1131,13 +1131,13 @@ char *getType(struct gate *node){
 void run(struct gate *gateHead, struct wire *wireHead){
 
     struct gate *gateIter;
-    struct wire *wireIter;
+    //struct wire *wireIter;
 
     //This variable represents the value after a gate 
-    int value;
+    //int value;
 
     gateIter = gateHead;
-    wireIter = wireHead;
+    //wireIter = wireHead;
 
     //Loop to iterate the list3 and create new values
     while(gateIter != NULL){
