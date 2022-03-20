@@ -6,15 +6,19 @@
 
 #define SIZE 512
 #define MAX_FANOUT 50
-#define fileOpen "s298_mapped.v"
+#define wireStringSize 3000
+#define gateStringSize 1000
+#define outputStringSize 2000
+#define inputStringSize 2000
+#define fileOpen "s344_mapped.v"
 
 
 //Creating all inputs that i will ask for a run
 void inputFix(char input[]){
     int pos, counter;
-    char temp[500];
+    char temp[inputStringSize];
 
-    SetZero(temp,500);
+    SetZero(temp,inputStringSize);
 
     pos=0;
     while(pos + 8 <strlen(input)){
@@ -36,7 +40,7 @@ void inputFix(char input[]){
         pos++;
     }
 
-    SetZero(input, 500);
+    SetZero(input, inputStringSize);
     strcpy(input, temp);
 
     return;
@@ -49,7 +53,6 @@ void printGate(struct gate *head){
 
     while(curr!=NULL){
        printf("Gate with name: %s has type: %s and level: %d\n", curr->gate_name, curr->gate_type,curr->layer);
-       printf("\n");
        curr = curr->next;
     }
 
@@ -78,13 +81,13 @@ void SetZero(char str[], int size){
 }
 
 char * StringSplit(char tosplit[]){
-    char temp[500];
-    char splited[500];
+    char temp[outputStringSize];
+    char splited[outputStringSize];
     int counter = 0;
     int counter1 = 0;
 
-    SetZero(temp, 500);
-    SetZero(splited, 500);
+    SetZero(temp, outputStringSize);
+    SetZero(splited, outputStringSize);
 
     while(tosplit[counter] != ';'){
         if(tosplit[counter] == '('){
@@ -97,12 +100,12 @@ char * StringSplit(char tosplit[]){
             }
             strcat(splited, temp);
             strcat(splited, " ");
-            SetZero(temp, 500);
+            SetZero(temp, outputStringSize);
         }
         counter++;
     }
 
-    SetZero(tosplit, 500);
+    SetZero(tosplit, outputStringSize);
     strcpy(tosplit, splited);
 
     return tosplit;
@@ -113,9 +116,9 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]){
     int counter=0, inp;
     char Q = 'Q';
     char Z = 'Z';
-    char temp[500];
+    char temp[inputStringSize];
 
-    SetZero(temp,500);
+    SetZero(temp,inputStringSize);
 
     while(1){
         if(tosplit[counter] == Q){
@@ -141,13 +144,13 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]){
     for(counter=0; counter<counter1; counter++){
         temp[counter] = temp[counter+1];
     }
-    char output[200];
-    SetZero(output, 200);
+    char output[outputStringSize];
+    SetZero(output, outputStringSize);
     strcpy(output, temp);
     strcat(output, ";");
     strcpy(ptr->gate_output, StringSplit(output));
 
-    SetZero(temp, 100);
+    SetZero(temp, outputStringSize);
     for(counter=0; counter<inp; counter++){
         temp[counter] = tosplit[counter];
     }
@@ -187,10 +190,10 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]){
 }
 
 void BasicDataSpliter(struct gate *ptr, char tosplit[]){
-    char temp[100];
+    char temp[inputStringSize];
     int counter=0, counter1=0;
 
-    SetZero(temp,100);
+    SetZero(temp,inputStringSize);
 
     //First get the name
     while(tosplit[counter] != '('){
@@ -208,7 +211,7 @@ void BasicDataSpliter(struct gate *ptr, char tosplit[]){
     strcpy(ptr->gate_name, temp);
 
     //Clear temp string
-    SetZero(temp, 100);
+    SetZero(temp, inputStringSize);
 
     //Got the Substring
     if(tosplit[counter] == ' '){
@@ -281,15 +284,17 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
 
     //File pointer
     FILE *fp;
-    char str[SIZE]; //String to read from file
+    char str[inputStringSize]; //String to read from file
 
     //String for the circuit input - output - wire
-    char inputs[200];
-    char outputs[50];
-    char wire[3000];
-    char temp[50];
-    char readtemp[3000];
-    char read[3000];
+    char inputs[inputStringSize];
+    char outputs[outputStringSize];
+    char wire[wireStringSize];
+    char readtemp[wireStringSize];
+    char read[wireStringSize];
+
+    //String for universal use for small calculations. Does not take date from wires-gates etc
+    char temp[50]; 
 
     //Which line from file i read starting from input(0)
     int counter, lineread = 0;
@@ -301,13 +306,13 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
     struct gate *curr;
 
     //Initialize everything to \0
-    SetZero(str, SIZE);
-    SetZero(inputs, 200);
-    SetZero(outputs, 50);
-    SetZero(wire, 200);
+    SetZero(str, inputStringSize);
+    SetZero(inputs, inputStringSize);
+    SetZero(outputs, outputStringSize);
+    SetZero(wire, wireStringSize);
+    SetZero(readtemp, wireStringSize);
+    SetZero(read, wireStringSize);
     SetZero(temp,50);
-    SetZero(readtemp, 600);
-    SetZero(read, 3000);
 
     // opening file for reading
     fp = fopen(fileOpen , "r");
@@ -317,21 +322,22 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
       return NULL;
     }
 
-   while(fgets(str, SIZE, fp)!= NULL){
+   while(fgets(str, inputStringSize, fp)!= NULL){
 
        strcpy(readtemp,str);
 
        if(readtemp[0] == '/'){
-            SetZero(str, SIZE);
-            SetZero(readtemp, 3000);
+            SetZero(str, inputStringSize);
+            SetZero(readtemp, wireStringSize);
             continue;
         }
+
         //Start code here for structure!!!!!
 
         //Throw first line saying module
         //Check first only for m only for speed
         if(readtemp[0] == 'm'){
-            SetZero(temp,10);
+            SetZero(temp,50);
             for(counter=0; counter<6; counter++){
                 temp[counter] = readtemp[counter];
             }
@@ -339,16 +345,23 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
                 lineread = 0;
                 continue;
             }
+            else{
+                exit -1;
+            }
         }
 
         //Throw last line saying endmodule
         if(readtemp[0] == 'e'){
-            SetZero(readtemp,10);
+            //SetZero(readtemp,10);
             for(counter=0; counter<9; counter++){
                 temp[counter] = readtemp[counter];
             }
             if(!strcmp(temp,"endmodule")){
                 break;
+            }
+            else{
+                printf("Temp is %s\n", temp);
+                exit -1;
             }
         }
 
@@ -358,7 +371,7 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
             if(readtemp[counter] == ';'){break;}
             counter++;
         }
-        //SetZero(readtemp, 300);
+        
         if(readtemp[counter-1] == ','){
             strcat(read, readtemp);
             flag = 1;
@@ -376,33 +389,33 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
         //Read inputs
         if(lineread == 0){
             strcpy(inputs, read);
-            SetZero(str, SIZE);
-            SetZero(readtemp, 600);
-            SetZero(read, 600);
+            SetZero(str, inputStringSize);
+            SetZero(readtemp, wireStringSize);
+            SetZero(read, wireStringSize);
             lineread++;
             continue;
         }
         //Read output
         if(lineread == 1){
             strcpy(outputs, read);
-            SetZero(str, SIZE);
-            SetZero(readtemp, 600);
-            SetZero(read, 600);
+            SetZero(str, inputStringSize);
+            SetZero(readtemp, wireStringSize);
+            SetZero(read, wireStringSize);
             lineread++;
             continue;
         }
         //Read wire
         if(lineread == 2){
             strcpy(wire, read);
-            SetZero(str, SIZE);
-            SetZero(readtemp, 600);
-            SetZero(read, 600);
+            SetZero(str, inputStringSize);
+            SetZero(readtemp, wireStringSize);
+            SetZero(read, wireStringSize);
             lineread++;
             continue;
         }
 
         //Drop empty lines no line will have length less than 2
-        if(strlen(read) < 2){
+        if(strlen(read) < 3){
             lineread++;
             continue;
         }
@@ -418,9 +431,9 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
             head->next = NULL;
             head->layer = -1;
             lineread++;
-            SetZero(str, SIZE);
-            SetZero(readtemp, 600);
-            SetZero(read, 600);
+            SetZero(str, inputStringSize);
+            SetZero(readtemp, wireStringSize);
+            SetZero(read, wireStringSize);
             tnode = head;
 
             continue;
@@ -441,9 +454,9 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
 
         flag = 0;
 
-        SetZero(str, SIZE);
-        SetZero(readtemp, 600);
-        SetZero(read, 600);
+        SetZero(str, inputStringSize);
+        SetZero(readtemp, wireStringSize);
+        SetZero(read, wireStringSize);
 
     }
     strcpy(input,inputs);
@@ -471,7 +484,6 @@ struct gate *Find(struct gate *ptr, char stringforsearch[], struct gate *value[]
         ret = strstr(curr->gate_inputs, stringforsearch);
         if(ret != NULL){
             value[i] = curr;
-            printf("Found %s\n", ret);
             i++;
         }
         curr = curr->next;
@@ -512,9 +524,9 @@ struct wire *FindCheck(struct wire *ptr, char stringforsearch[]){
 
 void StringForWireList(char input[], char output[], char wire[], char str[]){
     int counter = 0;
-    char inputtemp[500]={'\0'};
-    char outputtemp[500] ={'\0'};
-    char wiretemp[3000]= {'\0'};
+    char inputtemp[inputStringSize]={'\0'};
+    char outputtemp[outputStringSize] ={'\0'};
+    char wiretemp[wireStringSize]= {'\0'};
 
     strcpy(inputtemp, input);
     strcpy(outputtemp, output);
@@ -525,7 +537,7 @@ void StringForWireList(char input[], char output[], char wire[], char str[]){
             inputtemp[counter] = '\0';
         }
 
-        if(counter + 8 > 500 ){
+        if(counter + 8 > inputStringSize ){
             inputtemp[counter] = '\0';
         }
         else{
@@ -537,7 +549,7 @@ void StringForWireList(char input[], char output[], char wire[], char str[]){
         if(outputtemp[counter] == ';'){
             outputtemp[counter] = '\0';
         }
-        if(counter + 12 > 500 ){
+        if(counter + 12 > outputStringSize ){
             outputtemp[counter] = '\0';
         }
         else{
@@ -549,7 +561,7 @@ void StringForWireList(char input[], char output[], char wire[], char str[]){
         if(wiretemp[counter] == ';'){
             wiretemp[counter] = '\0';
         }
-        if(counter + 12 > 3000 ){
+        if(counter + 12 > wireStringSize ){
             wiretemp[counter] = '\0';
         }
         else{
@@ -600,8 +612,8 @@ struct wire *InitializeWireList(char input[], char output[], char wire[]){
     struct wire *head, *temp, *curr;
 
     int counter, i, counter1=0;
-    char temporary[20];
-    char str[5000] = {'\0'};
+    char temporary[100];
+    char str[inputStringSize + outputStringSize +wireStringSize] = {'\0'};
 
     StringForWireList(input, output, wire, str);
 
@@ -612,7 +624,7 @@ struct wire *InitializeWireList(char input[], char output[], char wire[]){
     }
 
     counter=0;
-    SetZero(temporary, 20);
+    SetZero(temporary, 100);
 
     while(1){
         if(str[counter] == ' '){
@@ -635,7 +647,7 @@ struct wire *InitializeWireList(char input[], char output[], char wire[]){
     i=counter;
     while( i < strlen(str)){
         i++;
-        SetZero(temporary, 20);
+        SetZero(temporary, 100);
 
         temp = (struct wire *)malloc(sizeof(struct wire));
         if(temp == NULL){
@@ -691,7 +703,7 @@ void connect(struct gate *headgate, struct wire *headwire){
     struct gate *currgate;
     struct wire *currwire;
     int counter, i=0, j=0;
-    char temp[30] = {'\0'};
+    char temp[100] = {'\0'};
 
     //Loop to go throw gate list and connect it times as inputs to the correct wire list
     for(currgate = headgate; currgate != NULL; currgate = currgate->next){
@@ -713,7 +725,7 @@ void connect(struct gate *headgate, struct wire *headwire){
                 printf("Something went wrong!!\n");
                 exit(1);
             }
-            SetZero(temp,30);
+            SetZero(temp,100);
             j=0;
             i++;
 
@@ -727,7 +739,7 @@ void connect(struct gate *headgate, struct wire *headwire){
     }
 
     //Set zero to temp string
-    SetZero(temp,30);
+    SetZero(temp,100);
 
     //Loop to go throw gate list and connect it times as outputs to the correct wire list
     for(currgate = headgate; currgate != NULL; currgate = currgate->next){
@@ -745,10 +757,10 @@ void connect(struct gate *headgate, struct wire *headwire){
 
             currwire = FindCheck(headwire, temp);
             if(currwire == NULL){
-                printf("Something went wrong!!\n");
+                printf("Something went wrong1!!\n");
                 exit(1);
             }
-            SetZero(temp,30);
+            SetZero(temp,100);
             j=0;
             i++;
 
@@ -868,7 +880,6 @@ struct gate *rebuildLevelOrderLayer0(struct gate **head){
     //Node must been found
     newHead = temp;
 
-    printf("Temp: %p\n", temp);
     //Check if that node was head and build head if so
     if(temp == *head){
         *head = temp->next;
@@ -994,6 +1005,7 @@ void fixGateLevel(struct gate **head, struct gate *list3, int level){
 
     iterator = *head;
     tmp1 = *head;
+
     while(tmp1 != NULL){
         stored++;
         tmp1 = tmp1->next;
@@ -1005,13 +1017,6 @@ void fixGateLevel(struct gate **head, struct gate *list3, int level){
     while(finalList->next != NULL){
         finalList = finalList->next;
     }
-
-    tmp1 = *head;
-    stored = 0;
-    while(tmp1 != NULL){
-        stored++;
-        tmp1 = tmp1->next;
-    }
     
     int newtemp;
 
@@ -1022,6 +1027,7 @@ void fixGateLevel(struct gate **head, struct gate *list3, int level){
         maxLayer = 0;
         flag = 0;
 
+        //Count gate inputs
         while(iterator->inputs[pos] != NULL){
             inputCount++;
             pos++;
@@ -1085,7 +1091,7 @@ void fixGateLevel(struct gate **head, struct gate *list3, int level){
 }
 
 void buildCircuitLeveled(struct gate **head, struct gate *list3){
-    //struct gate *iterator;
+
     int levelToBuild; //Remember level 0 is already built
 
     levelToBuild = 1; //Start from level 1 since level 0 is ready
@@ -1100,7 +1106,7 @@ void dataToFile(char *dataStr){
     
     FILE *fp;
 
-    fp = fopen("/Users/giorgos.papageorgiou/Documents/just backup/data/inputs_outputs_logs.txt", "w+");
+    fp = fopen("data/inputs_outputs_logs.txt", "w+");
 
 
     /* fopen() return NULL if last operation was unsuccessful */

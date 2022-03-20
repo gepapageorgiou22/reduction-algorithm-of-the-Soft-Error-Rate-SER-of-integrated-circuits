@@ -2,7 +2,14 @@ Run #0
 	Wire GND: 1
 	Wire VDD: 1
 	Wire CK: 1
-	Wire G0: 1
-	Wire G1: 1
-	Wire G2: 1
+	Wire A0: 1
+	Wire A1: 1
+	Wire A2: 1
+	Wire A3: 1
+	Wire B0: 1
+	Wire B1: 1
+	Wire B2: 1
+	Wire B3: 1
+	Wire n0: 1
+	Wire START: 1
 
