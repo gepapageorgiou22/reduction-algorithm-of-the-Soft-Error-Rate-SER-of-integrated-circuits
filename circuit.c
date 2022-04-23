@@ -13,13 +13,15 @@
 #include "functions.h"
 
 #define SIZE 512
+#define logSize 3500
 #define MAX_FANOUT 50
 
 int main(int argc, char *argv[]){
     char input[500];
     char output[500];
     char wires[3000];
-    char data[3000];
+    char data[logSize];
+    char numberToString[20];
     
     struct gate *listhead;
     struct wire *headwire;
@@ -28,7 +30,7 @@ int main(int argc, char *argv[]){
     SetZero(input, 500);
     SetZero(output, 500);
     SetZero(wires, 3000);
-    SetZero(data, 3000);
+    SetZero(data, logSize);
 
     //Create List to work with
     listhead = CreateInitialList(input, output, wires);
@@ -60,10 +62,6 @@ int main(int argc, char *argv[]){
     //                                //
     ////////////////////////////////////
 
-//     print list here
-//     printGate(listhead);
-//      printWire(headwire);
-
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
     int repeat;
@@ -84,8 +82,6 @@ int main(int argc, char *argv[]){
     int valuetopass;
     struct wire *tmp;
 
-    printf("\n\n%s\n", input);
-
     inputFix(input);
 
    struct gate *gateList3Head;
@@ -105,7 +101,8 @@ int main(int argc, char *argv[]){
     //Not correct need to do that after setting levels
     for(int counter=0; counter<repeat; counter++){
         strcat(data, "Run #"); //Fixing string to store input-output into a file
-        sprintf(data, "%s%d\n", data, counter);
+        sprintf(numberToString, "%d\n", counter);
+        strcat(data, numberToString);
 
         while(strlen(input) >= counterforinput ){
             if(input[counterforinput] == ' ' || counterforinput == strlen(input)){
@@ -117,7 +114,8 @@ int main(int argc, char *argv[]){
                 strcat(data, "\tWire "); 
                 strcat(data, search);
                 strcat(data, ": ");
-                sprintf(data, "%s%d\n", data, valuetopass);
+                sprintf(numberToString, "%d\n", valuetopass);
+                strcat(data, numberToString);
                 
                 tmp = FindCheck(headwire, search);
                 if(tmp == NULL ){
@@ -126,7 +124,6 @@ int main(int argc, char *argv[]){
                 }
                 tmp->value = valuetopass;
                 SetZero(search, 20);
-                printf("\n");
                 counterforinput++;
                 pos=0;
             }
@@ -148,8 +145,7 @@ int main(int argc, char *argv[]){
     //Write the data in to the file to have metrics 
     dataToFile(data);
 
-    printWire(headwire);
-    printf("\n\nPrinting Level Order List\n\n");
+    printf("\n############################ Printing Level Order List ############################\n\n");
     printGate(gateList3Head);
 
     //Free the list
@@ -160,30 +156,4 @@ int main(int argc, char *argv[]){
     
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
