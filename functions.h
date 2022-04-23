@@ -60,3 +60,19 @@ char *getType(struct gate *node);
 
 // This function runs the circuit.
 void run(struct gate *gateHead, struct wire *wireHead);
+
+//Do actions for OR gate
+int valueGateOR(struct gate *node);
+//Do actions for NOR gate
+int valueGateNOR(struct gate *node);
+//Do actions for AND gate
+int valueGateAND(struct gate *node);
+//Do actions for NAND gate
+int valueGateNAND(struct gate *node);
+//Do actions for the inverter;
+int valueGateInverter(struct gate *node);
+//Do actions for the DFlip Flop;
+int valueGateDFlipFlop(struct gate *node);
+
+//Function to write results to a file
+void printGateToFile(struct gate *head);
