@@ -56,6 +56,13 @@ void printGate(struct gate *head){
        curr = curr->next;
     }
 
+    curr = head;
+
+    while(curr!=NULL){
+       printf("Gate with name: %s has value of: %d\n", curr->gate_name, curr->value);
+       curr = curr->next;
+    }
+
 }
 
 //Just printing all wires
@@ -1106,7 +1113,7 @@ void dataToFile(char *dataStr){
     
     FILE *fp;
 
-    fp = fopen("data/inputs_outputs_logs.txt", "w+");
+    fp = fopen("data/inputs_outputs_logs.txt", "a");
 
 
     /* fopen() return NULL if last operation was unsuccessful */
@@ -1131,30 +1138,179 @@ char *getType(struct gate *node){
 void run(struct gate *gateHead, struct wire *wireHead){
 
     struct gate *gateIter;
-    //struct wire *wireIter;
-
-    //This variable represents the value after a gate 
-    //int value;
 
     gateIter = gateHead;
-    //wireIter = wireHead;
 
     //Loop to iterate the list3 and create new values
     while(gateIter != NULL){
 
         //Based on gate type, perform actions numbers
         //place it on the wire
+
+        //OR GATE HERE
+        if(strcmp(gateIter->gate_type,"OR") == 0){
+            gateIter->outputs[0]->value = valueGateOR(gateIter);
+        }
+        else if(strcmp(gateIter->gate_type,"NOR") == 0){
+            gateIter->outputs[0]->value = valueGateNOR(gateIter);
+        }
+        else if(strcmp(gateIter->gate_type,"AND") == 0){
+            gateIter->outputs[0]->value = valueGateAND(gateIter);
+        }
+        else if(strcmp(gateIter->gate_type,"NAND") == 0){
+            gateIter->outputs[0]->value = valueGateNAND(gateIter);
+        }
+        else if(strcmp(gateIter->gate_type,"Inverter") == 0){
+            gateIter->outputs[0]->value = valueGateInverter(gateIter);
+        }
+        else if(strcmp(gateIter->gate_type,"D_Flif_Flop") == 0){
+            gateIter->outputs[0]->value = valueGateDFlipFlop(gateIter);
+        }
         
         gateIter = gateIter->next;
     }
 
 }
 
+int valueGateOR(struct gate *node){
+    int counter;
+    struct gate *nodeItr;
 
+    counter=0;
+    
+    nodeItr = node;
+    
+    while (nodeItr->inputs[counter] != NULL){
+        counter++;
+    }
 
+    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
+        printf("Gate %s with input %s and value %d\n", nodeItr->gate_name, nodeItr->inputs[inpunt_count]->node_name, nodeItr->inputs[inpunt_count]->value);
+        // In OR gate if 1 is found as one input output is 1
+        if(nodeItr->inputs[inpunt_count]->value == 1){
+            printf("Found 1 exiting...\n");
+            nodeItr->value = 1;
+            return 1;
+        }
+        nodeItr->value = 0;
+    }
+    
+    return 0;
+}
 
+int valueGateNOR(struct gate *node){
+    int counter;
+    struct gate *nodeItr;
 
+    counter=0;
+    nodeItr = node;
+    
+    while (nodeItr->inputs[counter] != NULL){
+        counter++;
+    }
 
+    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
+        // In OR gate if 1 is found as one input output is 1
+        if(nodeItr->inputs[inpunt_count]->value == 1){
+            nodeItr->value = 0;
+            return 0;
+        }
+    }
+    nodeItr->value = 1;
 
+    return 1;
+}
 
+int valueGateAND(struct gate *node){
+    int counter, flag;
+    struct gate *nodeItr;
 
+    counter=0;
+    nodeItr = node;
+    
+    while (nodeItr->inputs[counter] != NULL){
+        counter++;
+    }
+
+    //flag represents if value of 1 has been found
+    flag=0;
+
+    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
+        // In OR gate if 1 is found as one input output is 1
+        if(nodeItr->inputs[inpunt_count]->value == 1){
+            flag=1;
+        }
+        if(nodeItr->inputs[inpunt_count]->value == 0 && flag == 1){
+            nodeItr->value = 0;
+            return 0;
+        }
+    }
+    nodeItr->value = 1;
+
+    return 1;
+}
+
+int valueGateNAND(struct gate *node){
+    int counter, flag;
+    struct gate *nodeItr;
+
+    counter=0;
+    nodeItr = node;
+    
+    while (nodeItr->inputs[counter] != NULL){
+        counter++;
+    }
+
+    //flag represents if value of 1 has been found
+    flag=0;
+
+    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
+        // In OR gate if 1 is found as one input output is 1
+        if(nodeItr->inputs[inpunt_count]->value == 1){
+            flag=1;
+        }
+        if(nodeItr->inputs[inpunt_count]->value == 0 && flag == 1){
+            nodeItr->value = 1;
+            return 1;
+        }
+    }
+    nodeItr->value = 0;
+    return 0;
+}
+
+int valueGateInverter(struct gate *node){
+    int returnValue = node->inputs[0]->value;;
+    if (returnValue == 1){
+        node->value = 0;
+        return 0;
+    }
+    else{
+        node->value = 0;
+        return 1;
+    }
+}
+
+int valueGateDFlipFlop(struct gate *node){
+    printf("Here is a flip flop. Value is %d\n", node->inputs[1]->value);
+    node->value = node->inputs[1]->value;
+    return node->inputs[1]->value;
+}
+
+//Function that prints the gates values at each run to the file
+void printGateToFile(struct gate *head){
+
+    struct gate *curr = head;
+    FILE *pFile;
+
+    pFile=fopen("data/inputs_outputs_logs.txt", "a");
+    if(pFile==NULL) {
+        perror("Error opening file.");
+        return;
+    }
+
+    while(curr!=NULL){
+       fprintf(pFile, "Gate with name: %s has value of: %d\n", curr->gate_name, curr->value);
+       curr = curr->next;
+    }
+    fclose(pFile);
+}

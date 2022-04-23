@@ -8,12 +8,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 //#include "structs.h"
 #include "functions.h"
 
 #define SIZE 512
-#define logSize 3500
+#define logSize 500
 #define MAX_FANOUT 50
 
 int main(int argc, char *argv[]){
@@ -31,6 +34,17 @@ int main(int argc, char *argv[]){
     SetZero(output, 500);
     SetZero(wires, 3000);
     SetZero(data, logSize);
+
+    struct stat st = {0};
+    if (stat("data", &st) == -1) {
+        mkdir("data", 0700);
+    }
+    
+    //Delete file in the folder in order to be fresh every run
+    if (remove("data/inputs_outputs_logs.txt") == 0) {
+    } else {
+        printf("The file is not deleted.");
+    }
 
     //Create List to work with
     listhead = CreateInitialList(input, output, wires);
@@ -90,15 +104,15 @@ int main(int argc, char *argv[]){
     
     //setting levels to the next wires.
     levelingWireAfterGate(gateList3Head, headwire, 0);
-    
+
     //This function does the connection between the lists
     //It builds a new list without more memmory allocated
     //The new list is in levels.
     buildCircuitLeveled(&listhead, gateList3Head);
 
 
-
     //Not correct need to do that after setting levels
+    //Running circuit
     for(int counter=0; counter<repeat; counter++){
         strcat(data, "Run #"); //Fixing string to store input-output into a file
         sprintf(numberToString, "%d\n", counter);
@@ -136,15 +150,16 @@ int main(int argc, char *argv[]){
 
         //Calculate new values of the circuit
         //make function void update circuit status
-
+        run(gateList3Head, headwire);
         // Update output value on file
-
+        //Write the data in to the file to have metrics 
+        dataToFile(data);
+        printGateToFile(gateList3Head);
+        SetZero(data, logSize);
         counterforinput=0;
     }
 
-    //Write the data in to the file to have metrics 
-    dataToFile(data);
-
+    
     printf("\n############################ Printing Level Order List ############################\n\n");
     printGate(gateList3Head);
 
