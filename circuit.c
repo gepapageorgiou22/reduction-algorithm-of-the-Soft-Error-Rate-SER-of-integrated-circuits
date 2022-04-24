@@ -12,8 +12,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-//#include "structs.h"
 #include "functions.h"
+#include "radiation_reduction_functions.h"
 
 #define SIZE 512
 #define logSize 500
@@ -162,6 +162,8 @@ int main(int argc, char *argv[]){
     
     printf("\n############################ Printing Level Order List ############################\n\n");
     printGate(gateList3Head);
+
+    testNewHeaderFile(gateList3Head);
 
     //Free the list
     FreeMem(&listhead);
