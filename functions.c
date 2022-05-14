@@ -10,7 +10,7 @@
 #define gateStringSize 1000
 #define outputStringSize 2000
 #define inputStringSize 2000
-#define fileOpen "s344_mapped.v"
+#define fileOpen "s27_mapped.v"
 
 
 //Creating all inputs that i will ask for a run

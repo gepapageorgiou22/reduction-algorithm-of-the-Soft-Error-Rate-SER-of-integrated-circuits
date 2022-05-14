@@ -12,7 +12,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "functions.h"
 #include "radiation_reduction_functions.h"
 
 #define SIZE 512
