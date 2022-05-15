@@ -140,7 +140,7 @@ void fixTheNames(struct gate *head){
         }
         
         counter++;
-        while(itr->gate_name[counter] != ' ' || counter <= strlen(itr->gate_name)){
+        while(itr->gate_name[counter] != ' ' && counter < strlen(itr->gate_name)){
             updatedName[counterNewName] = itr->gate_name[counter];
             counter++;
             counterNewName++;

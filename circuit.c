@@ -165,9 +165,8 @@ int main(int argc, char *argv[]){
     printf("\nContinue\n");
     printGate(gateList3Head);
 
-    // testNewHeaderFile(gateList3Head);
-
     circuitChange(gateList3Head, headwire);
+    printGate(gateList3Head);
 
     //Free the list
     FreeMem(&listhead);
