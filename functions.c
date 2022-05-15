@@ -50,7 +50,7 @@ void inputFix(char input[]){
 void printGate(struct gate *head){
 
     struct gate *curr = head;
-
+    printf("Got in print\n");
     while(curr!=NULL){
        printf("Gate with name: %s has type: %s and level: %d\n", curr->gate_name, curr->gate_type,curr->layer);
        curr = curr->next;
@@ -474,6 +474,21 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
     fclose(fp);
 
     return head;
+}
+
+int gateExists(struct gate *head, char stringforsearch[]){
+    struct gate *itr;
+
+    itr = head;
+
+    while(itr!=NULL){
+        if(strcmp(itr->gate_name,stringforsearch) == 0){
+            return 0;
+        }
+        itr = itr -> next;
+    }
+
+    return -1;
 }
 
 struct gate *Find(struct gate *ptr, char stringforsearch[], struct gate *value[]){

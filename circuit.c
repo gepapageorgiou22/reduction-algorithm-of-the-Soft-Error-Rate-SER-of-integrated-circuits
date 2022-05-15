@@ -160,9 +160,14 @@ int main(int argc, char *argv[]){
 
     
     printf("\n############################ Printing Level Order List ############################\n\n");
+    
+    fixTheNames(gateList3Head);
+    printf("\nContinue\n");
     printGate(gateList3Head);
 
-    testNewHeaderFile(gateList3Head);
+    // testNewHeaderFile(gateList3Head);
+
+    circuitChange(gateList3Head, headwire);
 
     //Free the list
     FreeMem(&listhead);

@@ -8,6 +8,7 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]);
 char * StringSplit(char tosplit[]);
 int FindInputOutputs(char stringforsearch[]);
 struct gate *CreateInitialList(char *input, char *output, char *wires);
+int gateExists(struct gate *head, char stringforsearch[]);
 struct gate *Find(struct gate *ptr, char stringforsearch[], struct gate *value[]);
 void counts(struct gate *head);
 struct wire *FindCheck(struct wire *ptr, char stringforsearch[]);
