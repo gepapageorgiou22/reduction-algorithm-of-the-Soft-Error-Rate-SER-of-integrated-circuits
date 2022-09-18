@@ -15,3 +15,5 @@ void fixTheNames(struct gate *head);
 void circuitChange(struct gate *head, struct wire *wireHead);
 void findAndChangeGate(struct gate *head, struct wire *wireHead, char name[]);
 void changeANDGateWithTwoNANDS(struct gate * gate, struct gate *head);
+void changeORGateWithTwoNORS(struct gate * gate, struct gate *head);
+void changeNandWithAndInverter(struct gate * gate, struct gate *head);
