@@ -269,10 +269,10 @@ void fixTheNames(struct gate *head){
             counter++;
             counterNewName++;
         }
-        printf("New name: %s\n", updatedName);
+//         printf("New name: %s\n", updatedName);
         SetZero(itr->gate_name, 50);
         strcpy(itr->gate_name, updatedName);
-        printf("Name passed: %s\n", itr->gate_name);
+//         printf("Name passed: %s\n", itr->gate_name);
         itr = itr->next;
     }
     printf("Exiting\n");

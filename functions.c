@@ -10,7 +10,7 @@
 #define gateStringSize 1000
 #define outputStringSize 2000
 #define inputStringSize 2000
-#define fileOpen "s27_mapped.v"
+#define fileOpen "s400_mapped.v"
 
 
 //Creating all inputs that i will ask for a run
@@ -135,7 +135,7 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]){
         }
         counter++;
     }
-
+printf("Broke after here: %s\n", tosplit);
     inp=counter;
     counter1 = 0;
 
@@ -196,7 +196,7 @@ void InputOutputSpliter(struct gate *ptr, char tosplit[]){
     }
 }
 
-void BasicDataSpliter(struct gate *ptr, char tosplit[]){
+/*void BasicDataSpliter(struct gate *ptr, char tosplit[]){
     char temp[inputStringSize];
     int counter=0, counter1=0;
 
@@ -236,6 +236,61 @@ void BasicDataSpliter(struct gate *ptr, char tosplit[]){
 
     //Split input-output and type
     InputOutputSpliter(ptr, temp);
+}*/
+
+void BasicDataSpliter(struct gate *ptr, char tosplit[]){
+    char temp[inputStringSize];
+    int counter=0, counter1=0;
+    int counterSpaces=0;
+
+    SetZero(temp,inputStringSize);
+    
+    while(tosplit[counterSpaces] == ' '){
+        counterSpaces++;
+    }
+
+    //First get the name
+    while(tosplit[counter+counterSpaces] != '('){
+        temp[counter] = tosplit[counter+counterSpaces];
+        counter++;
+    }
+    
+    temp[strlen(temp) - 1] = '\0';
+
+    //Set it to the temp_gate_name
+    strcpy(ptr->gate_name, temp);
+    printf("Providing to test split: %s\n", tosplit);
+    test(tosplit);
+    printf("This while loop split: %s\n", tosplit);
+    
+    InputOutputSpliter(ptr, tosplit);
+}
+
+void test(char fixString[]) {
+    int counter=0;
+    int tempCounter=0;
+    char tempString[inputStringSize];
+    
+    SetZero(tempString, inputStringSize);
+    
+    while(fixString[counter] != '('){
+        counter++;
+    }
+    counter++;
+    while(1){
+        if(fixString[counter] == ')' && fixString[counter+1] == ';'){
+            break;
+        }
+        else{
+            tempString[tempCounter] = fixString[counter];
+            counter++;
+            tempCounter++;
+        }
+    }
+    
+    SetZero(fixString, inputStringSize);
+    strcpy(fixString, tempString);
+    
 }
 
 //Clear memory droping the real head
@@ -287,7 +342,7 @@ int FindInputOutputs(char stringforsearch[]){
     return space;
 }
 
-struct gate *CreateInitialList(char *input, char *output, char *wires){
+/*struct gate *CreateInitialList(char *input, char *output, char *wires){
 
     //File pointer
     FILE *fp;
@@ -329,7 +384,8 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
       return NULL;
     }
 
-   while(fgets(str, inputStringSize, fp)!= NULL){
+    printf("Error after here\n");
+    while(fgets(str, inputStringSize, fp)!= NULL){
 
        strcpy(readtemp,str);
 
@@ -342,8 +398,8 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
         //Start code here for structure!!!!!
 
         //Throw first line saying module
-        //Check first only for m only for speed
-        if(readtemp[0] == 'm'){
+        if(readtemp[0] == 'm' && readtemp[1] == 'o' && readtemp[2] == 'd'){
+            printf("Got in the beggining of the module\n");
             SetZero(temp,50);
             for(counter=0; counter<6; counter++){
                 temp[counter] = readtemp[counter];
@@ -358,8 +414,8 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
         }
 
         //Throw last line saying endmodule
-        if(readtemp[0] == 'e'){
-            //SetZero(readtemp,10);
+        if(readtemp[0] == 'e' && readtemp[1] == 'n' && readtemp[2] == 'd'){
+            printf("Got in the end of the module\n");
             for(counter=0; counter<9; counter++){
                 temp[counter] = readtemp[counter];
             }
@@ -372,7 +428,7 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
             }
         }
 
-        //do it until \n so we can track ,
+        //do it until \n so we can track
         counter=0;
         while(readtemp[counter] != '\n'){
             if(readtemp[counter] == ';'){break;}
@@ -472,6 +528,172 @@ struct gate *CreateInitialList(char *input, char *output, char *wires){
 
     //Close pointer to file
     fclose(fp);
+
+    return head;
+}*/
+
+struct gate *CreateInitialList(char *input, char *output, char *wires){
+
+    //File pointer
+    FILE *fp;
+    char str[inputStringSize]; //String to read from file
+
+    //String for the circuit input - output - wire
+    char inputs[inputStringSize];
+    char outputs[outputStringSize];
+    char wire[wireStringSize];
+
+    //String for universal use for small calculations. Does not take date from wires-gates etc
+    char temp[50]; 
+
+    //Which line from file i read starting from input(0)
+    int counter, lineread = 0;
+    int flag=0;
+
+    //Head of temp linked list
+    struct gate *head = NULL;
+    struct gate *tnode;
+    struct gate *curr;
+
+    //Initialize everything to \0
+    SetZero(str, inputStringSize);
+    SetZero(inputs, inputStringSize);
+    SetZero(outputs, outputStringSize);
+    SetZero(wire, wireStringSize);
+    SetZero(temp,50);
+
+    // opening file for reading
+    fp = fopen(fileOpen , "r");
+    if(fp == NULL) {
+       perror("Error opening file");
+
+      return NULL;
+    }
+
+    printf("Error after here\n");
+    while(fgets(str, inputStringSize, fp)!= NULL){
+
+        printf("%s\n", str);
+       if(str[0] == '/'){
+            SetZero(str, inputStringSize);
+            continue;
+        }
+
+        //Start code here for structure!!!!!
+
+        //Throw first line saying module
+        if(str[0] == 'm' && str[1] == 'o' && str[2] == 'd'){
+            printf("Got in the beggining of the module\n");
+            SetZero(temp,50);
+            for(counter=0; counter<6; counter++){
+                temp[counter] = str[counter];
+            }
+            if(!strcmp(temp,"module")){
+                lineread = 0;
+                continue;
+            }
+            else{
+                return NULL;
+            }
+        }
+
+        //Throw last line saying endmodule
+        if(str[0] == 'e' && str[1] == 'n' && str[2] == 'd'){
+            printf("Got in the end of the module\n");
+            for(counter=0; counter<9; counter++){
+                temp[counter] = str[counter];
+            }
+            if(!strcmp(temp,"endmodule")){
+                break;
+            }
+            else{
+                printf("Temp is %s\n", temp);
+                return NULL;
+            }
+        }
+        //New code here
+        
+        //Import line here With current configuration will read inputs as 2k characters long
+        if(str[2] == 'i' && str[3] == 'n' && str[4] == 'p'){
+            printf("Input\n");
+            strcpy(inputs, str);
+            SetZero(str, inputStringSize);
+            lineread = 0;
+            continue;
+        }
+        else if(str[2] == 'o' && str[3] == 'u' && str[4] == 't'){
+            printf("Output\n");
+            strcpy(outputs, str);
+            SetZero(str, inputStringSize);
+            lineread++;
+            continue;
+        }
+        else if(str[2] == 'w' && str[3] == 'i' && str[4] == 'r'){
+            printf("Wire\n");
+            strcpy(wire, str);
+            SetZero(str, inputStringSize);
+            lineread++;
+            continue;
+        }
+        else{
+            //Drop empty lines no line will have length less than 2
+            if(strlen(str) < 8){
+                printf("Got in here... Droping lines\n");
+                continue;
+            }
+            printf("Got in here %d\n", lineread);
+            
+            //If lineread = 2, then we have finished imputs/outputs/wires and empty lines. We will read now the first gate
+            if(lineread == 2){
+                printf("Lineread = 2\n");
+                head = (struct gate *)malloc(sizeof(struct gate));
+                if(head == NULL){
+                    printf("Error alocating memmory for the temp_gate!!!\nExiting...\n");
+                    return NULL;
+                }
+                printf("Got before BasicDataSpliter here\n");
+                
+                BasicDataSpliter(head, str);
+                printf("Got after BasicDataSpliter here\n");
+                head->next = NULL;
+                head->layer = -1;
+                lineread++;
+                SetZero(str, inputStringSize);
+                tnode = head;
+                printf("%s\n", head->gate_name);
+                continue;
+            }
+            else if (lineread > 2){
+                printf("Lineread > 2\n");
+                //All the other nodes except the first one
+                curr = (struct gate *)malloc(sizeof(struct gate));
+                if(curr == NULL){
+                    printf("Error alocating memmory for the temp_gate!!!\nExiting...\n");
+                    return NULL;
+                }
+
+                //Fix first list
+                tnode->next = curr;
+                curr->layer = -1;
+                curr->next = NULL;
+                BasicDataSpliter(curr, str);
+                lineread++;
+                tnode = curr;
+
+                flag = 0;
+
+                SetZero(str, inputStringSize);
+            
+            }
+            else{
+                printf("Should have been in one of the above cases");
+            }
+        }
+    }
+        
+ 
+    fclose(fp);
+    
 
     return head;
 }
@@ -1200,10 +1422,8 @@ int valueGateOR(struct gate *node){
     }
 
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        printf("Gate %s with input %s and value %d\n", nodeItr->gate_name, nodeItr->inputs[inpunt_count]->node_name, nodeItr->inputs[inpunt_count]->value);
         // In OR gate if 1 is found as one input output is 1
         if(nodeItr->inputs[inpunt_count]->value == 1){
-            printf("Found 1 exiting...\n");
             nodeItr->value = 1;
             return 1;
         }
@@ -1306,7 +1526,6 @@ int valueGateInverter(struct gate *node){
 }
 
 int valueGateDFlipFlop(struct gate *node){
-    printf("Here is a flip flop. Value is %d\n", node->inputs[1]->value);
     node->value = node->inputs[1]->value;
     return node->inputs[1]->value;
 }

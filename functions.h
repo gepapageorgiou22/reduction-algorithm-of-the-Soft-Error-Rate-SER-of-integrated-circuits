@@ -19,6 +19,8 @@ void inputFix(char input[]);
 //Connect struct gate with wires
 void connect(struct gate *headgate, struct wire *headwire);
 
+void test(char fixString[]);
+
 //Function to set 0 level at the flip flops
 void levelSetToDFlipFlops(struct gate *headGate);
 

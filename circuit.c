@@ -24,6 +24,7 @@ int main(int argc, char *argv[]){
     char wires[3000];
     char data[logSize];
     char numberToString[20];
+    FILE *fp;
     
     struct gate *listhead;
     struct wire *headwire;
@@ -36,21 +37,31 @@ int main(int argc, char *argv[]){
 
     struct stat st = {0};
     if (stat("data", &st) == -1) {
-        mkdir("data", 0700);
+        mkdir("data", 0755);
     }
     
     //Delete file in the folder in order to be fresh every run
-    if (remove("data/inputs_outputs_logs.txt") == 0) {
-    } else {
-        printf("The file is not deleted.");
+    
+    if ((fp = fopen("data/inputs_outputs_logs.txt", "r")) != NULL){
+        fclose(fp);
+        if(remove("data/inputs_outputs_logs.txt") == 0){
+            //Do nothing
+        }
+        else {
+            printf("The file exists but is not deleted.");
+        }
     }
+    
+    printf("Got until here\n");
 
     //Create List to work with
-    listhead = CreateInitialList(input, output, wires);
+    listhead = CreateInitialList(input, output, wires); // Segmention fault inside this class SOS SOS SOS SOS SOS SOS
     if(listhead == NULL){
         printf("Oups, spaceship is launching!\n");
         return -1;
     }
+    
+    printf("Got until here - after creating list\n");
 
     //Setting pointers pointing to wire list to NULL
     //Both input array and output
@@ -58,6 +69,8 @@ int main(int argc, char *argv[]){
 
     //Now i will count and save count of inputs and outputs
     counts(listhead);
+    
+    printf("Got until  creating wire list\n");
     
     //Creating wire list
     headwire = InitializeWireList(input, output, wires);
@@ -163,10 +176,10 @@ int main(int argc, char *argv[]){
     
     fixTheNames(gateList3Head);
     printf("\nContinue\n");
-    printGate(gateList3Head);
+//     printGate(gateList3Head);
 
     circuitChange(gateList3Head, headwire);
-    printGate(gateList3Head);
+//     printGate(gateList3Head);
 
     //Free the list
     FreeMem(&listhead);
