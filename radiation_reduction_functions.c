@@ -38,13 +38,13 @@ void circuitChange(struct gate *head, struct wire *wireHead){
 
     }
 
-    //ALL the bellow must be done in the while loop... SOS
-    //Find the gates
-
-    //From the type perfomr the neccessary changes to the gate AND -> NAND + NAND add the new wires to the list
-
+    /*   DONE   */     //ALL the bellow must be done in the while loop... SOS
+    /*   DONE   */     //Find the gates
+    /*   DONE   */     //From the type perfomr the neccessary changes to the gate AND -> NAND + NAND add the new wires to the list
+    /*   DONE   */     //At OR gate -> OR + Inverter || NOR + NOR
+    
+    /*    The bellow steps can be done in the main */
     //Re run the circuit.
-
     //Export the new verilog file
 }
 
@@ -58,8 +58,16 @@ void findAndChangeGate(struct gate *head, struct wire *wireHead, char name[]){
             if(strcmp(itr->gate_type, "AND") == 0){
                 changeANDGateWithTwoNANDS(itr, head);
             }
+            if(strcmp(itr->gate_type, "OR") == 0){
+                changeORGateWithTwoNORS(itr, head);
+            }
+            if(strcmp(itr->gate_type, "NAND") == 0){
+                changeNandWithAndInverter(itr, head);
+            }
+            
             break;
         }
+        
         itr = itr -> next;
     }
 
@@ -120,6 +128,122 @@ while(itr!=NULL){
 }
 
 //Attach the wire to the new NAND gate
+temp->outputs[0] = newWire;
+
+}
+
+void changeORGateWithTwoNORS(struct gate * gate, struct gate *head){
+
+struct gate *temp, *itr;
+struct wire *newWire, *wireItr;
+int counter;
+
+temp = (struct gate *)malloc(sizeof(struct gate));
+if(temp == NULL){
+    printf("Error allocating memmory for the better circuit!\n");
+    return;
+}
+
+//Build the pointers on the first list
+temp->next = gate->next;
+gate->next = temp;
+
+//Copy information for the gate
+strcpy(gate->gate_type,"NOR");
+strcpy(temp->gate_type,gate->gate_type);
+temp->layer = gate->layer;
+temp->inputs[0] = gate->outputs[0];
+temp->inputs[1] = gate->outputs[0];
+strcpy(temp->gate_name, gate->gate_name);
+strcat(temp->gate_name, "_New");
+
+
+//now create new wire that will be the output of the new gate
+newWire = (struct wire *)malloc(sizeof(struct wire));
+if(newWire == NULL){
+    printf("Error allocating memmory for the better circuit!\n");
+    return;
+}
+
+newWire->next = gate->outputs[0]->next;
+gate->outputs[0]->next = newWire;
+strcpy(newWire->node_name, gate->outputs[0]->node_name);
+strcat(newWire->node_name, "_New");
+newWire->layer = gate->outputs[0]->layer;
+
+//find all the gates that have the old wire as input and change it
+itr = head;
+while(itr!=NULL){
+    counter = 0;
+    wireItr = temp->inputs[counter];
+    while(wireItr != NULL){
+        if(wireItr == temp->inputs[0]){
+            itr->inputs[counter] = newWire;    
+        }
+        counter++;
+        wireItr = itr->inputs[counter];
+    }
+
+    itr = itr->next;
+}
+
+//Attach the wire to the new NOR gate
+temp->outputs[0] = newWire;
+}
+
+void changeNandWithAndInverter(struct gate * gate, struct gate *head){
+    struct gate *temp, *itr;
+    struct wire *newWire, *wireItr;
+    int counter;
+
+    temp = (struct gate *)malloc(sizeof(struct gate));
+    if(temp == NULL){
+        printf("Error allocating memmory for the better circuit!\n");
+        return;
+    }
+
+    //Build the pointers on the first list
+    temp->next = gate->next;
+    gate->next = temp;
+
+    //Copy information for the gate
+    strcpy(gate->gate_type,"AND");
+    strcpy(temp->gate_type, "Inverter");
+    temp->layer = gate->layer;
+    temp->inputs[0] = gate->outputs[0];
+    strcpy(temp->gate_name, gate->gate_name);
+    strcat(temp->gate_name, "_New");
+    
+    //now create new wire that will be the output of the new gate   
+    newWire = (struct wire *)malloc(sizeof(struct wire));
+    if(newWire == NULL){
+        printf("Error allocating memmory for the better circuit!\n");
+        return;
+    }
+
+    newWire->next = gate->outputs[0]->next;
+    gate->outputs[0]->next = newWire;
+    strcpy(newWire->node_name, gate->outputs[0]->node_name);
+    strcat(newWire->node_name, "_New");
+    newWire->layer = gate->outputs[0]->layer;
+
+    //find all the gates that have the old wire as input and change it
+    itr = head;
+    while(itr!=NULL){
+        counter = 0;
+        wireItr = temp->inputs[counter];
+        while(wireItr != NULL){
+            if(wireItr == temp->inputs[0]){
+                itr->inputs[counter] = newWire;    
+            }
+            counter++;
+            wireItr = itr->inputs[counter];
+        }
+
+        itr = itr->next;
+    }
+
+//Attach the wire to the new NOR gate
 temp->outputs[0] = newWire;
 
 }
