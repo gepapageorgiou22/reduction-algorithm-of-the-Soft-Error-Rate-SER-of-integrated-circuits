@@ -76,3 +76,17 @@ int valueGateDFlipFlop(struct gate *node);
 
 //Function to write results to a file
 void printGateToFile(struct gate *head);
+
+//New function to read from file
+struct gate *create(struct wire *headwire);
+void initGateInstance(struct gate *ptr, char *data);
+void setName(struct gate *ptr, char *data);
+void setType(struct gate *ptr, char *data);
+void setInutsOutputs(struct gate *ptr, char *data);
+void initWireInstance(struct wire *ptr, char *data);
+void createWireList(char inputString[], char outputString[], char wireString[], struct wire *head);
+void initLevelOfDFlipFlops(struct gate *ptr);
+int checkOccurrences(char *s, char c);
+void setInputsFlipFlop(struct gate *ptr, char *data);
+void setInputsInverter(struct gate *ptr, char *data);
+void setInputsAndNorOr(struct gate *ptr, char *data);

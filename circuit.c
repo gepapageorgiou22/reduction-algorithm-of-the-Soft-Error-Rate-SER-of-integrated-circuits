@@ -12,8 +12,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-//#include "structs.h"
 #include "functions.h"
+#include "readFileData.h"
 
 #define SIZE 512
 #define logSize 500
@@ -29,6 +29,12 @@ int main(int argc, char *argv[]){
     struct gate *listhead;
     struct wire *headwire;
 
+    headwire = (struct wire *)malloc(sizeof(struct wire));
+    if(headwire == NULL){
+        printf("Error allocating memmory for wire list\n");
+        return -1;
+    }
+
     //Setting Variables to 0 or \0
     SetZero(input, 500);
     SetZero(output, 500);
@@ -37,9 +43,9 @@ int main(int argc, char *argv[]){
 
     struct stat st = {0};
     if (stat("data", &st) == -1) {
-        mkdir("data", 0700);
+        mkdir("data", 0755);
     }
-    
+
     //Delete file in the folder in order to be fresh every run
     if (remove("data/inputs_outputs_logs.txt") == 0) {
     } else {
@@ -47,7 +53,7 @@ int main(int argc, char *argv[]){
     }
 
     //Create List to work with
-    listhead = CreateInitialList(input, output, wires);
+    listhead = create(headwire);
     if(listhead == NULL){
         printf("Oups, spaceship is launching!\n");
         return -1;
@@ -57,11 +63,6 @@ int main(int argc, char *argv[]){
     //Both input array and output
     null(listhead);
 
-    //Now i will count and save count of inputs and outputs
-    counts(listhead);
-    
-    //Creating wire list
-    headwire = InitializeWireList(input, output, wires);
     if(headwire == NULL){
         printf("Going to Space!!!!!!!!!\n");
         return -1;
@@ -69,22 +70,18 @@ int main(int argc, char *argv[]){
 
     ////////////////////////////////////
     //                                //
-    //                                //
     //   CONNECT LIST WIRE-GATE NOW   //
     connect(listhead, headwire);
     //                                //
-    //                                //
     ////////////////////////////////////
-
+    printf("Test: %s, wire: %s\n", listhead->gate_inputs, listhead->inputs[0]->node_name);
+    
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
     int repeat;
 
     printf("Enter how many passes you want to perform: ");
     scanf(" %d", &repeat);
-
-
-    //Count inputs and ask user to enter them
 
     //In a loop perform iterations for the circuit.
     //Parts that will get value after the first iteration
@@ -96,19 +93,20 @@ int main(int argc, char *argv[]){
     int valuetopass;
     struct wire *tmp;
 
-    inputFix(input);
-
-   struct gate *gateList3Head;
+    struct gate *gateList3Head;
     restGatesLeveled(listhead, headwire, 0);
     gateList3Head = rebuildLevelOrderLayer0(&listhead);
-    
+    printf("After rebuildLevelOrderLayer0!\n");
+
     //setting levels to the next wires.
     levelingWireAfterGate(gateList3Head, headwire, 0);
+    printf("After levelingWireAfterGate!\n");
 
     //This function does the connection between the lists
     //It builds a new list without more memmory allocated
     //The new list is in levels.
     buildCircuitLeveled(&listhead, gateList3Head);
+    printf("After buildCircuitLeveled!\n");
 
 
     //Not correct need to do that after setting levels
