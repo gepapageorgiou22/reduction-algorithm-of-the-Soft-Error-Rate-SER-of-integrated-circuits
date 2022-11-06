@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
         printf("Oups, spaceship is launching!\n");
         return -1;
     }
-
+    printf("Got Here!\n");
     //Setting pointers pointing to wire list to NULL
     //Both input array and output
     null(listhead);
@@ -74,8 +74,7 @@ int main(int argc, char *argv[]){
     connect(listhead, headwire);
     //                                //
     ////////////////////////////////////
-    printf("Test: %s, wire: %s\n", listhead->gate_inputs, listhead->inputs[0]->node_name);
-    
+  
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
     int repeat;
@@ -92,22 +91,51 @@ int main(int argc, char *argv[]){
     int pos=0;
     int valuetopass;
     struct wire *tmp;
+    int flag = 1;
+    printf("before restGatesLeveled!\n");
+    printGate(listhead);
 
-    struct gate *gateList3Head;
-    restGatesLeveled(listhead, headwire, 0);
-    gateList3Head = rebuildLevelOrderLayer0(&listhead);
-    printf("After rebuildLevelOrderLayer0!\n");
+    //Issue from here
+    struct gate *gateList3Head = NULL;
+    gateList3Head = (struct gate *)malloc(sizeof(struct gate));
+    if(gateList3Head == NULL){
+        printf("Error allocating memmory for wire list\n");
+        return -1;
+    }
 
-    //setting levels to the next wires.
-    levelingWireAfterGate(gateList3Head, headwire, 0);
-    printf("After levelingWireAfterGate!\n");
+    levelGatesInitialList(listhead);
+    
+    printWire(headwire);
+    printGate(listhead);
 
-    //This function does the connection between the lists
-    //It builds a new list without more memmory allocated
-    //The new list is in levels.
-    buildCircuitLeveled(&listhead, gateList3Head);
-    printf("After buildCircuitLeveled!\n");
+    // if(flag ==1 ) {
+    //     return 0;
+    // }
 
+    // restGatesLeveled(listhead, headwire, 0);
+    // // printf("After restGatesLeveled!\n");
+
+    // gateList3Head = rebuildLevelOrderLayer0(&listhead);
+    // // printf("After rebuildLevelOrderLayer0!\n");
+    
+    // printGate(gateList3Head);
+    // printGate(listhead);
+
+    // //setting levels to the next wires.
+    // levelingWireAfterGate(gateList3Head, headwire, 0);
+    // printf("After levelingWireAfterGate!\n");
+
+    // //This function does the connection between the lists
+    // //It builds a new list without more memmory allocated
+    // //The new list is in levels.
+    // buildCircuitLeveled(&listhead, gateList3Head);
+    // printf("After buildCircuitLeveled!\n");
+
+    printf("Before createNewLeveledList\n");
+    createNewLeveledList(listhead, gateList3Head);
+    printf("After createNewLeveledList\n");
+
+    printGate(gateList3Head);
 
     //Not correct need to do that after setting levels
     //Running circuit

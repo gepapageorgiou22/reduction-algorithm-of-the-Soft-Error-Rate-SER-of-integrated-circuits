@@ -39,6 +39,19 @@ strcpy(dataBuffer[i], tempString);
 
 }
 
+void replaceFalseNewLines(char dataBuffer[lineCount][wordLength]) {
+    int counterLine;
+    int counterWord;
+
+    for(counterLine=0; counterLine<lineCount; counterLine++) {
+        for(counterWord=0; counterWord<wordLength; counterWord++) {
+            if(dataBuffer[counterLine][counterWord] == '\n') {
+                dataBuffer[counterLine][counterWord] = '\0';
+            } 
+        }
+    }
+}
+
 void initArray(char dataBuffer[lineCount][wordLength]){
     int i, j;
     for (i = 0; i < 500; i++) {
@@ -55,6 +68,7 @@ void prepareData(char *filePathToVerilogFile, char dataBuffer[lineCount][wordLen
     char str[buffToRead];
 
     fp = fopen(filePathToVerilogFile , "r");
+    printf("Opened file\n");
     if(fp == NULL) {
        perror("Error opening file");
       return;
@@ -66,6 +80,10 @@ void prepareData(char *filePathToVerilogFile, char dataBuffer[lineCount][wordLen
         }
         counter++;
     }
+
+    replaceFalseNewLines(dataBuffer);
+
+    printf("Finished here file\n");
 
     fclose(fp);
 }

@@ -1,16 +1,9 @@
-/////////////////////////////////////////////////////////////
-// Created by: Synopsys DC Expert(TM) in wire load mode
-// Version   : O-2018.06-SP4
-// Date      : Sun Nov 22 10:12:45 2020
-/////////////////////////////////////////////////////////////
-
-
 module s400 ( GND, VDD, CK, CLR, FM, GRN1, GRN2, RED1, RED2, TEST, YLW1, YLW2);
   input GND, VDD, CK, CLR, FM, TEST;
   output GRN1, GRN2, RED1, RED2, YLW1, YLW2;
-  wire TESTLVIINLATCHVCDAD, FMLVIINLATCHVCDAD, TCOMB_YA2, Y1C, R2C, TCOMB_GA2, TCOMB_GA1, C3_Q3VD, C3_Q2VD, C3_Q1VD, C3_Q0VD, UC_16VD, UC_17VD, UC_18VD, UC_19VD, UC_8VD, UC_9VD, UC_10VD, UC_11VD, n1, n2, n3, n5, n7, n9, n18, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28, n29, n30, n31, n32, n33, n34, n35, n36, n37, n38, n39, n40, n41, n42, n43, n44, n45, n46, n47, n48, n49, n50, n51, n52, n53, n54, n55, n56, n57, n58, n59, n60, n61, n62, n63, n64, n65, n66, n67, n68, n69, n70, n71, n72, n73, n74, n75, n76, n77, n78, n79, n80, n81, n82, n83, n84, n85, n86, n87, n88, n90, n91, n92, n94, n95, n96, n97, n98, n99, n100, n101, n104, n105, n106, n107, n108, n109, n110, n111, n112, n113, n114, n115 ;
+  wire TESTLVIINLATCHVCD, FMLVIINLATCHVCDAD, TCOMB_YA2, Y1C, R2C, TCOMB_GA2, TCOMB_GA1, C3_Q3VD, C3_Q2VD, C3_Q1VD, C3_Q0VD, UC_16VD, UC_17VD, UC_18VD, UC_19VD, UC_8VD, UC_9VD, UC_10VD, UC_11VD, n1, n2, n3, n5, n7, n9, n18, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28, n29, n30, n31, n32, n33, n34, n35, n36, n37, n38, n39, n40, n41, n42, n43, n44, n45, n46, n47, n48, n49, n50, n51, n52, n53, n54, n55, n56, n57, n58, n59, n60, n61, n62, n63, n64, n65, n66, n67, n68, n69, n70, n71, n72, n73, n74, n75, n76, n77, n78, n79, n80, n81, n82, n83, n84, n85, n86, n87, n88, n90, n91, n92, n94, n95, n96, n97, n98, n99, n100, n101, n104, n105, n106, n107, n108, n109, n110, n111, n112, n113, n114, n115 ;
          
-  DFF_X1 DFF_0 ( .D(TESTLVIINLATCHVCDAD), .CK(CK), .QN(n95) );
+  DFF_X1 DFF_0 ( .D(TESTLVIINLATCHVCD), .CK(CK), .QN(n95) );
   DFF_X1 DFF_1 ( .D(FMLVIINLATCHVCDAD), .CK(CK), .Q(n107), .QN(n94) );
   DFF_X1 DFF_2 ( .D(TCOMB_YA2), .CK(CK), .Q(YLW2) );
   DFF_X1 DFF_3 ( .D(Y1C), .CK(CK), .QN(YLW1) );
@@ -92,7 +85,7 @@ module s400 ( GND, VDD, CK, CLR, FM, GRN1, GRN2, RED1, RED2, TEST, YLW1, YLW2);
   NOR4_X1 U165 ( .A1(n59), .A2(n60), .A3(n61), .A4(n62), .ZN(TCOMB_GA1) );
   NOR2_X1 U166 ( .A1(n96), .A2(n94), .ZN(n61) );
   NOR2_X1 U167 ( .A1(n100), .A2(n63), .ZN(n59) );
-  NOR3_X1 U168 ( .A1(CLR), .A2(n54), .A3(n55), .ZN(TESTLVIINLATCHVCDAD) );
+  NOR3_X1 U168 ( .A1(CLR), .A2(n54), .A3(n55), .ZN(TESTLVIINLATCHVCD) );
   AND2_X1 U169 ( .A1(n19), .A2(n95), .ZN(n54) );
   NOR2_X1 U170 ( .A1(n95), .A2(n19), .ZN(n55) );
   INV_X1 U171 ( .A(TEST), .ZN(n19) );
