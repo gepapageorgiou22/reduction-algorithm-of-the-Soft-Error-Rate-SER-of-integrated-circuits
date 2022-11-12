@@ -18,9 +18,9 @@ for (i = 0; i < maxWordSize; i++){
 
 
    for(i=0; i<=(strlen(line)); i++){
-       if(line[i]==' ' || line[i]=='\0' || line[i]=='{' || line[i]==':' ||  line[i]=='"' || line[i]=='}'){      
+       if(line[i]==' ' || line[i]=='\0' || line[i]=='{' || line[i]==':' ||  line[i]=='"' || line[i]=='}' || line[i]=='\n'){      
             
-            if(line[i] == ';' ){
+            if(line[i] == ';' || line[0]=='\n'){
                 break;
             }
 	    }
@@ -34,7 +34,7 @@ i = 0;
 while(dataBuffer[i][0] != '\0') {
     i++;
 }
-
+printf("New line: %s\n", tempString);
 strcpy(dataBuffer[i], tempString);
 
 }
@@ -76,6 +76,7 @@ void prepareData(char *filePathToVerilogFile, char dataBuffer[lineCount][wordLen
     int counter=0;
     while(fgets(str, buffToRead, fp) != NULL) {
         if(str[0] != '\n' && str[0] != '/'){
+            printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Given String: %s\n", str);
             parse_line(dataBuffer, str);
         }
         counter++;

@@ -92,16 +92,19 @@ int main(int argc, char *argv[]){
     int valuetopass;
     struct wire *tmp;
     int flag = 1;
-    printf("before restGatesLeveled!\n");
     printGate(listhead);
+    printf("before restGatesLeveled!\n");
+    printf("before restGatesLeveled!\n");
+    // printGate(listhead);
 
     //Issue from here
-    struct gate *gateList3Head = NULL;
-    gateList3Head = (struct gate *)malloc(sizeof(struct gate));
-    if(gateList3Head == NULL){
-        printf("Error allocating memmory for wire list\n");
-        return -1;
-    }
+    // struct gate *gateList3Head = NULL;
+    // gateList3Head = (struct gate *)malloc(sizeof(struct gate));
+    // if(gateList3Head == NULL){
+    //     printf("Error allocating memmory for wire list\n");
+    //     return -1;
+    // }
+    printWire(headwire);
 
     levelGatesInitialList(listhead);
     
@@ -131,11 +134,30 @@ int main(int argc, char *argv[]){
     // buildCircuitLeveled(&listhead, gateList3Head);
     // printf("After buildCircuitLeveled!\n");
 
-    printf("Before createNewLeveledList\n");
-    createNewLeveledList(listhead, gateList3Head);
-    printf("After createNewLeveledList\n");
+    // printf("Before createNewLeveledList\n");
+    // createNewLeveledList(listhead, gateList3Head);
+    // printf("After createNewLeveledList\n");
+    struct mapping *test;
 
-    printGate(gateList3Head);
+    test = leveled(listhead);
+    // int i;
+    // struct mapping * temp;
+    // temp = test;
+    
+    // while(temp != NULL){
+    //     i = 0;
+    //     while(temp->gatesLevel[i] != NULL){
+    //         printf("Gate name: %s and level: %d\n", temp->gatesLevel[i]->gate_name, temp->gatesLevel[i]->layer);
+    //         i++;
+    //     }
+    //     temp = temp->mappingNext;
+    // }
+    // int flag1 =0;
+    // if(flag1 == 0) {
+    //     return 0;
+    // }
+
+    // printGate(gateList3Head);
 
     //Not correct need to do that after setting levels
     //Running circuit
@@ -176,23 +198,23 @@ int main(int argc, char *argv[]){
 
         //Calculate new values of the circuit
         //make function void update circuit status
-        run(gateList3Head, headwire);
+        // run(gateList3Head, headwire);
         // Update output value on file
         //Write the data in to the file to have metrics 
         dataToFile(data);
-        printGateToFile(gateList3Head);
+        // printGateToFile(gateList3Head);
         SetZero(data, logSize);
         counterforinput=0;
     }
 
     
     printf("\n############################ Printing Level Order List ############################\n\n");
-    printGate(gateList3Head);
+    // printGate(gateList3Head);
 
     //Free the list
     FreeMem(&listhead);
     FreeMemWire(&headwire);
-    FreeMem(&gateList3Head);
+    // FreeMem(&gateList3Head);
     printf("\n");
     
     return 0;

@@ -19,3 +19,8 @@ struct wire{
     int layer;
     struct wire *next;
 };
+
+struct mapping{
+    struct mapping *mappingNext;
+    struct gate *gatesLevel[50];
+};

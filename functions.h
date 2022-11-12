@@ -97,3 +97,6 @@ void gateFix(struct gate *gateToLevel);
 void addNode(struct gate *node, struct gate **head, struct gate *newList);
 void createNewLeveledList(struct gate *listhead, struct gate *gateList3Head);
 void copyNode(struct gate *newList, struct gate *node);
+int getMaxLevel(struct gate *head);
+struct mapping * leveled(struct gate *head);
+void clearPtrs(struct gate *gatesLevel[]);

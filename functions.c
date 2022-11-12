@@ -14,7 +14,7 @@
 #define lineCount 500
 #define wordLength 3000
 // #define fileOpen "s1238_mapped.v"
-#define fileOpen "s27_mapped.v"
+#define fileOpen "s400_mapped.v"
 
 
 /************************************************ DO NOT TOUCH WORKING PERFECTLY *********************************************************************/
@@ -22,9 +22,16 @@
 void printGate(struct gate *head){
 
     struct gate *curr = head;
+    int counter;
 
     while(curr!=NULL){
+       counter=0;
        printf("Gate with name: %s has type: %s and level: %d. Inputs: %s. Outputs: %s\n", curr->gate_name, curr->gate_type,curr->layer, curr->inputs[0]->node_name, curr->outputs[0]->node_name);
+       printf("Output: %s\n", curr->outputs[0]->node_name);
+       while(curr->inputs[counter] !=NULL) {
+             printf("Input wire: %s\n", curr->inputs[counter]->node_name);
+             counter++;
+       } 
        curr = curr->next;
     }
 
@@ -141,6 +148,7 @@ void connect(struct gate *headgate, struct wire *headwire){
     int counter, i=0, j=0, flag=0;
     char temp[100] = {'\0'};
     int variablesCount;
+     int testsdasta, testsdasta1=0;
 
     //Loop to go throw gate list and connect it times as inputs to the correct wire list
     for(currgate = headgate; currgate != NULL; currgate = currgate->next){
@@ -152,6 +160,7 @@ void connect(struct gate *headgate, struct wire *headwire){
             currwire = FindCheck(headwire, temp);
             if(currwire == NULL){
                 printWire(headwire);
+                printGate(headgate);
                 printf("Something went wrong finding wire: %s!\n", temp);
                 exit(1);
             }
@@ -165,7 +174,6 @@ void connect(struct gate *headgate, struct wire *headwire){
                 j=0;
                 SetZero(temp,100);
                 while(currgate->gate_inputs[i] != ',' && flag == 0){
-                    printf("Gate inputs: %s\n", currgate->gate_inputs);
                     if(i == strlen(currgate->gate_inputs)){
                         flag = 1;
                     }
@@ -185,6 +193,22 @@ void connect(struct gate *headgate, struct wire *headwire){
                 //Build pointers from here on
                 currgate->inputs[counter] = currwire;
             }
+
+            SetZero(temp, 100);
+           testsdasta1=0;
+
+            for(testsdasta=i; testsdasta<strlen(currgate->gate_inputs); testsdasta++) {
+                temp[testsdasta1] = currgate->gate_inputs[testsdasta];
+                testsdasta1++;
+            }
+
+                currwire = FindCheck(headwire, temp);
+                if(currwire == NULL){
+                    printWire(headwire);
+                    printf("Something went wrong finding wire: %s!\n", temp);
+                    exit(1);
+                }
+                currgate->inputs[counter] = currwire;
         }
 
         i=0;
@@ -198,7 +222,6 @@ void connect(struct gate *headgate, struct wire *headwire){
         flag=0;
     
         variablesCount = checkOccurrences(currgate->gate_output, ',');
-        printf("YOOOO: %s, %d\n", currgate->gate_output, variablesCount);
         if(variablesCount == 0) { // Only 1 output
             strcpy(temp, currgate->gate_output);
             currwire = FindCheck(headwire, temp);
@@ -209,7 +232,6 @@ void connect(struct gate *headgate, struct wire *headwire){
             }
             currgate->outputs[0] = currwire;
         }
-
         else {
             for(counter=0; counter<variablesCount; counter++){
                 SetZero(temp,100);
@@ -233,8 +255,24 @@ void connect(struct gate *headgate, struct wire *headwire){
                 i++;
 
                 //Build pointers from here on
-                currgate->outputs[counter] = currwire;
+                currgate->outputs[0] = currwire;
             }
+
+            SetZero(temp, 100);
+            testsdasta1=0;
+
+            for(testsdasta=i; testsdasta<strlen(currgate->gate_output); testsdasta++) {
+                temp[testsdasta1] = currgate->gate_output[testsdasta];
+                testsdasta1++;
+            }
+
+                currwire = FindCheck(headwire, temp);
+                if(currwire == NULL){
+                    printWire(headwire);
+                    printf("Something went wrong finding wire: %s!\n", temp);
+                    exit(1);
+                }
+                currgate->outputs[1] = currwire;
         }
         i=0;
     }
@@ -363,7 +401,7 @@ void levelingWireAfterGate(struct gate *headGate, struct wire *wireHead, int lev
     struct gate *iterator;
 
     iterator = headGate;
-    printf("In here\n");
+
     while(iterator != NULL){
         if(iterator->layer == level){
             iterator->outputs[0]->layer = iterator->layer + 1;
@@ -558,10 +596,8 @@ int valueGateOR(struct gate *node){
     }
 
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        printf("Gate %s with input %s and value %d\n", nodeItr->gate_name, nodeItr->inputs[inpunt_count]->node_name, nodeItr->inputs[inpunt_count]->value);
         // In OR gate if 1 is found as one input output is 1
         if(nodeItr->inputs[inpunt_count]->value == 1){
-            printf("Found 1 exiting...\n");
             nodeItr->value = 1;
             return 1;
         }
@@ -664,7 +700,6 @@ int valueGateInverter(struct gate *node){
 }
 
 int valueGateDFlipFlop(struct gate *node){
-    printf("Here is a flip flop. Value is %d\n", node->inputs[1]->value);
     node->value = node->inputs[1]->value;
     return node->inputs[1]->value;
 }
@@ -703,9 +738,7 @@ struct gate *create(struct wire *headwire) {
         return head;
     }
     tempHead = head;
-
     initGateInstance(head, array[4]);
-    printf("Created Node with name: %s, Inputs: %s, outputs: %s\n", head->gate_name, head->gate_inputs, head->gate_output);
     counter = 5;
     while (array[counter][0] != 'e'){
         curr = (struct gate *)malloc(sizeof(struct gate));
@@ -715,14 +748,12 @@ struct gate *create(struct wire *headwire) {
         }
         initGateInstance(curr, array[counter]);
         tempHead -> next = curr;
-        printf("Created Node with name: %s, Inputs: %s, outputs: %s\n", curr->gate_name, curr->gate_inputs, curr->gate_output);
         tempHead = curr;
         counter++;
     }
 
    createWireList(array[1], array[2], array[3], headwire);
  
-    printf("Here!\n");
     return head;
 }
 
@@ -829,7 +860,6 @@ void createWireList(char inputString[], char outputString[], char wireString[], 
         counter++;
     }
 
-    // printf("Finished wireList\n");
     printWire(head);
 }
 
@@ -851,7 +881,6 @@ void initGateInstance(struct gate *ptr, char *data) {
     setName(ptr, data);
 
     //Set input - output of the gate
-    // printf("Passing data: %s\n", data);
     setInutsOutputs(ptr, data);
 
     initLevelOfDFlipFlops(ptr);
@@ -964,8 +993,6 @@ void setInputsFlipFlop(struct gate *ptr, char *data) {
                 i++;
             }
         }
-        // printf("Copying inputs: %s\n", inputs);
-        // printf("Copying outputs: %s\n", outputs);
         strcpy(ptr->gate_inputs, inputs);
         strcpy(ptr->gate_output, outputs);
 }
@@ -1001,7 +1028,6 @@ void setInputsInverter(struct gate *ptr, char *data) {
                     i++;
                     counter++;
                 }
-                printf("Copying outputs: %s\n", outputs);
                 strcpy(ptr->gate_output, outputs);
             }
             else if(data[i] == 'A') {
@@ -1102,6 +1128,7 @@ SetZero(name, 30);
         j++;
         i++;
     }
+    SetZero(ptr->gate_name, 50);
     strcpy(ptr->gate_name, name);
 }
 
@@ -1132,7 +1159,6 @@ void fixFlipFlopWires(struct gate *listhead) {
     struct gate *temp;
 
     temp = listhead;
-    printf("%s\n%s\n", temp->gate_name, temp->outputs[0]->node_name);
     while (temp != NULL){
         if (strcmp(temp->gate_type, "D_Flif_Flop") == 0){
             temp->outputs[0]->layer = 1;
@@ -1149,15 +1175,11 @@ void fixFlipFlopWires(struct gate *listhead) {
 
 void levelGatesInitialList(struct gate *listhead) {
     struct gate *temp;
-    int counter;
-    int max;
-    int test = 0;
 
     while(allGatesHaveLevels(listhead) != 0) {
         temp = listhead;
         while (temp != NULL){
             //Fix gate layer
-            printf("gatefix error\n");
             gateFix(temp);
             temp = temp->next;
         }
@@ -1179,7 +1201,8 @@ void gateFix(struct gate *gateToLevel) {
 
     while (gateToLevel->inputs[counter] != NULL) {
         if(gateToLevel->inputs[counter]-> layer == -1) {
-            flag =1;
+            flag = 1;
+            break;
         }
         if(max < gateToLevel->inputs[counter]-> layer){
             max = gateToLevel->inputs[counter]-> layer;
@@ -1191,6 +1214,10 @@ void gateFix(struct gate *gateToLevel) {
         gateToLevel->layer = max;
 
         gateToLevel->outputs[0]->layer = max + 1;
+    }
+    else{
+        gateToLevel->layer = -1;
+        gateToLevel->outputs[0]->layer = -1;
     }
     
 }
@@ -1210,7 +1237,79 @@ int allGatesHaveLevels(struct gate *listhead) {
     return 0;
 }
 
+int getMaxLevel(struct gate *head) {
+    struct gate *itterator;
+    int max = 0;
+
+    itterator = head;
+
+    while (itterator != NULL){
+        if(itterator->layer > max){
+            max = itterator->layer;
+        }
+        itterator = itterator->next;
+    } 
+    return max;
+}
+
+void clearPtrs(struct gate *gatesLevel[]) {
+    int counter = 0;
+
+    for(counter=0; counter < 50; counter++){
+        gatesLevel[counter] = NULL;
+    }
+}
+
+struct mapping * leveled(struct gate *head) {
+    struct gate *itterator;
+    struct mapping *headMapping;
+    struct mapping *temp;
+    struct mapping *prev;
+    struct mapping *itteratorThirdList;
+    int level = 0;
+    int positionToAdd = 0;
+    int nodesCreated = 0;
+
+    headMapping = (struct mapping *)malloc(sizeof(struct mapping));
+    if(headMapping == NULL){
+        printf("Error creating new list\n");
+        return NULL;
+    }
+    headMapping->mappingNext = NULL;
+    clearPtrs(headMapping->gatesLevel);
+    prev = headMapping;
+
+    for(nodesCreated=1; nodesCreated <= getMaxLevel(head); nodesCreated++) {
+        temp = (struct mapping *)malloc(sizeof(struct mapping));
+        if(temp == NULL){
+            printf("Error creating new list\n");
+            return NULL;
+        }
+        temp->mappingNext = NULL;
+        clearPtrs(temp->gatesLevel);
+        prev->mappingNext = temp;
+        prev = prev->mappingNext;
+    }
+
+    itteratorThirdList = headMapping;
+    for(level = 0; level <= getMaxLevel(head); level++){
+        itterator = head;
+        positionToAdd = 0;
+        while (itterator != NULL){
+            if(itterator->layer == level) {
+                itteratorThirdList->gatesLevel[positionToAdd] = itterator;
+                positionToAdd++;
+            }
+            itterator = itterator->next;
+        }
+        itteratorThirdList = itteratorThirdList->mappingNext;
+    }
+
+    return headMapping;
+}
+
 void createNewLeveledList(struct gate *listhead, struct gate *gateList3Head) {
+
     int level, maxLevel=0;
     struct gate *temp;
     struct gate *helper;
@@ -1230,10 +1329,8 @@ void createNewLeveledList(struct gate *listhead, struct gate *gateList3Head) {
     level = 0;
     while (level<=maxLevel){
         while (temp != NULL){
-            printf("Max level: %d, Temp level: %d\n", maxLevel, temp->layer);
             if(temp->layer == level){
                 helper = temp->next;
-                printf("Passing node: %s\n", temp->gate_name);
                 addNode(temp, &listhead, gateList3Head);
                 temp = helper;
             }
@@ -1242,11 +1339,8 @@ void createNewLeveledList(struct gate *listhead, struct gate *gateList3Head) {
             }
             
         }
-        printf("%d\n", level);
         level++;
     }
-    printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-    printGate(gateList3Head);
 }
 
 void addNode(struct gate *node, struct gate **head, struct gate *newList) {
@@ -1254,7 +1348,6 @@ void addNode(struct gate *node, struct gate **head, struct gate *newList) {
     struct gate *tempOldList;
     struct gate *tempPrevious;
 
-    //  printf("Recieved: %s, %s\n", node->gate_name, *head->gate_name);
     //Case node is the head of the list
     if (*head == node){
         printf("Head of old list\n");
@@ -1264,9 +1357,7 @@ void addNode(struct gate *node, struct gate **head, struct gate *newList) {
         
         // Case newList is empty
         if(newList == NULL){
-            printf("New list1\n");
             copyNode(newList, node);
-            // printf("New head: %s\n", *head->gate_name);
             return;
         }
         else{ //New list is not empty
@@ -1295,7 +1386,6 @@ void addNode(struct gate *node, struct gate **head, struct gate *newList) {
 
     //Case newList is empty
     if(newList == NULL){
-        printf("New list2\n");
         copyNode(newList, node);
         return;
     }
@@ -1307,7 +1397,6 @@ void addNode(struct gate *node, struct gate **head, struct gate *newList) {
         }
         temp = temp->next;
     }
-    
 }
 
 void copyNode(struct gate *newList, struct gate *node) {
