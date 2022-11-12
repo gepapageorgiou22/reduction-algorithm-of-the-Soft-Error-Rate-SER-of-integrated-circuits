@@ -78,7 +78,7 @@ int valueGateDFlipFlop(struct gate *node);
 void printGateToFile(struct gate *head);
 
 //New function to read from file
-struct gate *create(struct wire *headwire);
+struct gate *create(struct wire *headwire, char *input);
 void initGateInstance(struct gate *ptr, char *data);
 void setName(struct gate *ptr, char *data);
 void setType(struct gate *ptr, char *data);
@@ -100,3 +100,4 @@ void copyNode(struct gate *newList, struct gate *node);
 int getMaxLevel(struct gate *head);
 struct mapping * leveled(struct gate *head);
 void clearPtrs(struct gate *gatesLevel[]);
+void adaptToOldCodeInputsLoop(char str[]);

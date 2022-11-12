@@ -49,16 +49,16 @@ int main(int argc, char *argv[]){
     //Delete file in the folder in order to be fresh every run
     if (remove("data/inputs_outputs_logs.txt") == 0) {
     } else {
-        printf("The file is not deleted.");
+        printf("The file is not deleted.\n");
     }
 
     //Create List to work with
-    listhead = create(headwire);
+    listhead = create(headwire, input);
     if(listhead == NULL){
         printf("Oups, spaceship is launching!\n");
         return -1;
     }
-    printf("Got Here!\n");
+    
     //Setting pointers pointing to wire list to NULL
     //Both input array and output
     null(listhead);
@@ -68,12 +68,12 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
+    
     ////////////////////////////////////
-    //                                //
     //   CONNECT LIST WIRE-GATE NOW   //
     connect(listhead, headwire);
-    //                                //
     ////////////////////////////////////
+    
   
     //Enter time of repeats
     //Default will start with 0 for D Flip flop
@@ -91,81 +91,18 @@ int main(int argc, char *argv[]){
     int pos=0;
     int valuetopass;
     struct wire *tmp;
-    int flag = 1;
-    printGate(listhead);
-    printf("before restGatesLeveled!\n");
-    printf("before restGatesLeveled!\n");
-    // printGate(listhead);
-
-    //Issue from here
-    // struct gate *gateList3Head = NULL;
-    // gateList3Head = (struct gate *)malloc(sizeof(struct gate));
-    // if(gateList3Head == NULL){
-    //     printf("Error allocating memmory for wire list\n");
-    //     return -1;
-    // }
-    printWire(headwire);
-
+    struct mapping *mappingList;
+    
     levelGatesInitialList(listhead);
-    
-    printWire(headwire);
-    printGate(listhead);
 
-    // if(flag ==1 ) {
-    //     return 0;
-    // }
+    mappingList = leveled(listhead);
 
-    // restGatesLeveled(listhead, headwire, 0);
-    // // printf("After restGatesLeveled!\n");
-
-    // gateList3Head = rebuildLevelOrderLayer0(&listhead);
-    // // printf("After rebuildLevelOrderLayer0!\n");
-    
-    // printGate(gateList3Head);
-    // printGate(listhead);
-
-    // //setting levels to the next wires.
-    // levelingWireAfterGate(gateList3Head, headwire, 0);
-    // printf("After levelingWireAfterGate!\n");
-
-    // //This function does the connection between the lists
-    // //It builds a new list without more memmory allocated
-    // //The new list is in levels.
-    // buildCircuitLeveled(&listhead, gateList3Head);
-    // printf("After buildCircuitLeveled!\n");
-
-    // printf("Before createNewLeveledList\n");
-    // createNewLeveledList(listhead, gateList3Head);
-    // printf("After createNewLeveledList\n");
-    struct mapping *test;
-
-    test = leveled(listhead);
-    // int i;
-    // struct mapping * temp;
-    // temp = test;
-    
-    // while(temp != NULL){
-    //     i = 0;
-    //     while(temp->gatesLevel[i] != NULL){
-    //         printf("Gate name: %s and level: %d\n", temp->gatesLevel[i]->gate_name, temp->gatesLevel[i]->layer);
-    //         i++;
-    //     }
-    //     temp = temp->mappingNext;
-    // }
-    // int flag1 =0;
-    // if(flag1 == 0) {
-    //     return 0;
-    // }
-
-    // printGate(gateList3Head);
-
-    //Not correct need to do that after setting levels
     //Running circuit
     for(int counter=0; counter<repeat; counter++){
         strcat(data, "Run #"); //Fixing string to store input-output into a file
         sprintf(numberToString, "%d\n", counter);
         strcat(data, numberToString);
-
+        adaptToOldCodeInputsLoop(input);
         while(strlen(input) >= counterforinput ){
             if(input[counterforinput] == ' ' || counterforinput == strlen(input)){
                 printf("Please enter Value for input wire (%s): ", search);
@@ -195,12 +132,11 @@ int main(int argc, char *argv[]){
                 counterforinput++;
             }
         }
-
+        //ONLY LEFT to run the simulation.
         //Calculate new values of the circuit
-        //make function void update circuit status
         // run(gateList3Head, headwire);
-        // Update output value on file
-        //Write the data in to the file to have metrics 
+
+        // Update output value on file and write the data in to the file to have metrics 
         dataToFile(data);
         // printGateToFile(gateList3Head);
         SetZero(data, logSize);

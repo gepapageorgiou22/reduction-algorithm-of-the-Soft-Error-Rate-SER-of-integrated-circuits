@@ -14,7 +14,7 @@
 #define lineCount 500
 #define wordLength 3000
 // #define fileOpen "s1238_mapped.v"
-#define fileOpen "s400_mapped.v"
+#define fileOpen "s27_mapped.v"
 
 
 /************************************************ DO NOT TOUCH WORKING PERFECTLY *********************************************************************/
@@ -724,7 +724,7 @@ void printGateToFile(struct gate *head){
 }
 
 
-struct gate *create(struct wire *headwire) {
+struct gate *create(struct wire *headwire, char *input) {
     char array[500][3000]; //This array contains each line from the verilog file
     struct gate *head, *curr, *tempHead;
     int counter;
@@ -752,8 +752,9 @@ struct gate *create(struct wire *headwire) {
         counter++;
     }
 
-   createWireList(array[1], array[2], array[3], headwire);
- 
+    createWireList(array[1], array[2], array[3], headwire);
+    strcpy(input, array[1]);
+
     return head;
 }
 
@@ -859,8 +860,6 @@ void createWireList(char inputString[], char outputString[], char wireString[], 
         temp = curr;
         counter++;
     }
-
-    printWire(head);
 }
 
 void initWireInstance(struct wire *ptr, char *data){
@@ -1416,4 +1415,27 @@ void copyNode(struct gate *newList, struct gate *node) {
         newList->inputs[counter] = node->inputs[counter];
     }
      
+}
+
+void adaptToOldCodeInputsLoop(char str[]) {
+    int counter = 5;
+    int i = 0;
+    char temp[3000];
+    SetZero(temp, 3000);
+
+    while(str[counter] != ';') {
+        printf("In here\n");
+        if(str[counter] == ','){
+            temp[i] = ' ';
+        }
+        else{
+            temp[i] = str[counter];
+        }
+        counter++;
+        i++;
+    }
+
+    SetZero(str, 3000);
+    strcpy(str, temp);
+
 }

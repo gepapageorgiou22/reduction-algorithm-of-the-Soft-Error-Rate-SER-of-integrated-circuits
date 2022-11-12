@@ -34,7 +34,6 @@ i = 0;
 while(dataBuffer[i][0] != '\0') {
     i++;
 }
-printf("New line: %s\n", tempString);
 strcpy(dataBuffer[i], tempString);
 
 }
@@ -68,7 +67,7 @@ void prepareData(char *filePathToVerilogFile, char dataBuffer[lineCount][wordLen
     char str[buffToRead];
 
     fp = fopen(filePathToVerilogFile , "r");
-    printf("Opened file\n");
+    
     if(fp == NULL) {
        perror("Error opening file");
       return;
@@ -76,15 +75,12 @@ void prepareData(char *filePathToVerilogFile, char dataBuffer[lineCount][wordLen
     int counter=0;
     while(fgets(str, buffToRead, fp) != NULL) {
         if(str[0] != '\n' && str[0] != '/'){
-            printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Given String: %s\n", str);
             parse_line(dataBuffer, str);
         }
         counter++;
     }
 
     replaceFalseNewLines(dataBuffer);
-
-    printf("Finished here file\n");
 
     fclose(fp);
 }
