@@ -9,6 +9,15 @@
         "readfiledata.h": "c",
         "functions.h": "c",
         "typeinfo": "c",
-        "atomic": "c"
+        "atomic": "c",
+        "__node_handle": "c",
+        "__memory": "c",
+        "limits": "c",
+        "optional": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "vector": "c"
     }
 }

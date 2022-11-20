@@ -7,14 +7,13 @@
 
 #define SIZE 512
 #define MAX_FANOUT 50
-#define wireStringSize 3000
+#define wireStringSize 4000
 #define gateStringSize 1000
 #define outputStringSize 2000
 #define inputStringSize 2000
-#define lineCount 500
-#define wordLength 3000
-// #define fileOpen "s1238_mapped.v"
-#define fileOpen "s27_mapped.v"
+#define lineCount 1000
+#define wordLength 4000
+#define fileOpen "s1423_mapped.v"
 
 
 /************************************************ DO NOT TOUCH WORKING PERFECTLY *********************************************************************/
@@ -26,12 +25,7 @@ void printGate(struct gate *head){
 
     while(curr!=NULL){
        counter=0;
-       printf("Gate with name: %s has type: %s and level: %d. Inputs: %s. Outputs: %s\n", curr->gate_name, curr->gate_type,curr->layer, curr->inputs[0]->node_name, curr->outputs[0]->node_name);
-       printf("Output: %s\n", curr->outputs[0]->node_name);
-       while(curr->inputs[counter] !=NULL) {
-             printf("Input wire: %s\n", curr->inputs[counter]->node_name);
-             counter++;
-       } 
+       printf("Gate with name: %s has type: %s and level: %d.\n", curr->gate_name, curr->gate_type,curr->layer);
        curr = curr->next;
     }
 
@@ -545,42 +539,46 @@ char *getType(struct gate *node){
     return (node->gate_type);
 }
 
-// This function runs the circuit
-void run(struct gate *gateHead, struct wire *wireHead){
-
-    struct gate *gateIter;
-
-    gateIter = gateHead;
-
-    //Loop to iterate the list3 and create new values
-    while(gateIter != NULL){
-
+void calculateValues(struct gate *gateToCalculate) {
+        
         //Based on gate type, perform actions numbers
         //place it on the wire
+        if(strcmp(gateToCalculate->gate_type,"OR") == 0){
+            gateToCalculate->outputs[0]->value = valueGateOR(gateToCalculate);
+        }
+        else if(strcmp(gateToCalculate->gate_type,"NOR") == 0){
+            gateToCalculate->outputs[0]->value = valueGateNOR(gateToCalculate);
+        }
+        else if(strcmp(gateToCalculate->gate_type,"AND") == 0){
+            gateToCalculate->outputs[0]->value = valueGateAND(gateToCalculate);
+        }
+        else if(strcmp(gateToCalculate->gate_type,"NAND") == 0){
+            gateToCalculate->outputs[0]->value = valueGateNAND(gateToCalculate);
+        }
+        else if(strcmp(gateToCalculate->gate_type,"Inverter") == 0){
+            gateToCalculate->outputs[0]->value = valueGateInverter(gateToCalculate);
+        }
+        else if(strcmp(gateToCalculate->gate_type,"D_Flif_Flop") == 0){
+            gateToCalculate->outputs[0]->value = valueGateDFlipFlop(gateToCalculate);
+        }
 
-        //OR GATE HERE
-        if(strcmp(gateIter->gate_type,"OR") == 0){
-            gateIter->outputs[0]->value = valueGateOR(gateIter);
+}
+
+// This function runs the circuit
+void run(struct mapping *listOrder){
+
+    struct mapping *iterator;
+    int counter;
+
+    iterator = listOrder;
+    while(iterator != NULL) {
+        counter = 0;
+        while (iterator->gatesLevel[counter] != NULL) {
+            calculateValues(iterator->gatesLevel[counter]);
+            counter++;
         }
-        else if(strcmp(gateIter->gate_type,"NOR") == 0){
-            gateIter->outputs[0]->value = valueGateNOR(gateIter);
-        }
-        else if(strcmp(gateIter->gate_type,"AND") == 0){
-            gateIter->outputs[0]->value = valueGateAND(gateIter);
-        }
-        else if(strcmp(gateIter->gate_type,"NAND") == 0){
-            gateIter->outputs[0]->value = valueGateNAND(gateIter);
-        }
-        else if(strcmp(gateIter->gate_type,"Inverter") == 0){
-            gateIter->outputs[0]->value = valueGateInverter(gateIter);
-        }
-        else if(strcmp(gateIter->gate_type,"D_Flif_Flop") == 0){
-            gateIter->outputs[0]->value = valueGateDFlipFlop(gateIter);
-        }
-        
-        gateIter = gateIter->next;
+        iterator = iterator->mappingNext;
     }
-
 }
 
 int valueGateOR(struct gate *node){
@@ -700,14 +698,21 @@ int valueGateInverter(struct gate *node){
 }
 
 int valueGateDFlipFlop(struct gate *node){
-    node->value = node->inputs[1]->value;
-    return node->inputs[1]->value;
+    if(node->inputs[1] == NULL) {
+        node->value = node->inputs[0]->value;
+        return node->inputs[0]->value;
+    }
+    else {
+        node->value = node->inputs[1]->value;
+        return node->inputs[1]->value;
+    }
 }
 
 //Function that prints the gates values at each run to the file
-void printGateToFile(struct gate *head){
+void printGateToFile(struct mapping *head){
 
-    struct gate *curr = head;
+    struct mapping *curr = head;
+    int counter;
     FILE *pFile;
 
     pFile=fopen("data/inputs_outputs_logs.txt", "a");
@@ -716,16 +721,21 @@ void printGateToFile(struct gate *head){
         return;
     }
 
-    while(curr!=NULL){
-       fprintf(pFile, "Gate with name: %s has value of: %d\n", curr->gate_name, curr->value);
-       curr = curr->next;
+    while(curr != NULL) {
+        counter=0;
+        while (curr->gatesLevel[counter] != NULL) {
+            fprintf(pFile, "Gate with name: %s has value of: %d\n", curr->gatesLevel[counter]->gate_name, curr->gatesLevel[counter]->value);
+            counter++;
+        }
+        curr = curr->mappingNext;
     }
+
     fclose(pFile);
 }
 
 
 struct gate *create(struct wire *headwire, char *input) {
-    char array[500][3000]; //This array contains each line from the verilog file
+    char array[1000][4000]; //This array contains each line from the verilog file
     struct gate *head, *curr, *tempHead;
     int counter;
 
@@ -1268,18 +1278,21 @@ struct mapping * leveled(struct gate *head) {
     int level = 0;
     int positionToAdd = 0;
     int nodesCreated = 0;
+    int nrOfNodesCreated = 0;
 
     headMapping = (struct mapping *)malloc(sizeof(struct mapping));
     if(headMapping == NULL){
         printf("Error creating new list\n");
         return NULL;
     }
+    nrOfNodesCreated++;
     headMapping->mappingNext = NULL;
     clearPtrs(headMapping->gatesLevel);
     prev = headMapping;
 
     for(nodesCreated=1; nodesCreated <= getMaxLevel(head); nodesCreated++) {
         temp = (struct mapping *)malloc(sizeof(struct mapping));
+        nrOfNodesCreated++;
         if(temp == NULL){
             printf("Error creating new list\n");
             return NULL;
@@ -1289,7 +1302,8 @@ struct mapping * leveled(struct gate *head) {
         prev->mappingNext = temp;
         prev = prev->mappingNext;
     }
-
+    printGate(head);
+    printf("Max level spoted: %d\n", getMaxLevel(head));
     itteratorThirdList = headMapping;
     for(level = 0; level <= getMaxLevel(head); level++){
         itterator = head;
@@ -1420,11 +1434,10 @@ void copyNode(struct gate *newList, struct gate *node) {
 void adaptToOldCodeInputsLoop(char str[]) {
     int counter = 5;
     int i = 0;
-    char temp[3000];
-    SetZero(temp, 3000);
+    char temp[4000];
+    SetZero(temp, 4000);
 
     while(str[counter] != ';') {
-        printf("In here\n");
         if(str[counter] == ','){
             temp[i] = ' ';
         }
@@ -1435,7 +1448,7 @@ void adaptToOldCodeInputsLoop(char str[]) {
         i++;
     }
 
-    SetZero(str, 3000);
+    SetZero(str, 4000);
     strcpy(str, temp);
 
 }

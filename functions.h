@@ -59,7 +59,7 @@ void dataToFile(char *dataStr);
 char *getType(struct gate *node);
 
 // This function runs the circuit.
-void run(struct gate *gateHead, struct wire *wireHead);
+void run(struct mapping *listOrder);
 
 //Do actions for OR gate
 int valueGateOR(struct gate *node);
@@ -75,7 +75,7 @@ int valueGateInverter(struct gate *node);
 int valueGateDFlipFlop(struct gate *node);
 
 //Function to write results to a file
-void printGateToFile(struct gate *head);
+void printGateToFile(struct mapping *head);
 
 //New function to read from file
 struct gate *create(struct wire *headwire, char *input);

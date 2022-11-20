@@ -420,4 +420,3 @@ module s1238 ( GND, VDD, CK, G0, G1, G10, G11, G12, G13, G2, G3, G4, G45, G5, G5
   NAND2_X1 U786 ( .A1(n369), .A2(n55), .ZN(n151) );
   NAND3_X1 U787 ( .A1(n154), .A2(n155), .A3(n156), .ZN(n153) );
 endmodule
-

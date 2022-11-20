@@ -22,5 +22,5 @@ struct wire{
 
 struct mapping{
     struct mapping *mappingNext;
-    struct gate *gatesLevel[50];
+    struct gate *gatesLevel[100];
 };

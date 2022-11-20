@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define maxWordSize 3000
-#define buffToRead 3000
-#define lineCount 500
-#define wordLength 3000
+#define maxWordSize 4000
+#define buffToRead 4000
+#define lineCount 1000
+#define wordLength 4000
 
 void parse_line(char dataBuffer[lineCount][wordLength], char *line){
 
@@ -53,8 +53,8 @@ void replaceFalseNewLines(char dataBuffer[lineCount][wordLength]) {
 
 void initArray(char dataBuffer[lineCount][wordLength]){
     int i, j;
-    for (i = 0; i < 500; i++) {
-        for (j = 0; j < 3000; j++) {
+    for (i = 0; i < 1000; i++) {
+        for (j = 0; j < 4000; j++) {
             dataBuffer[i][j] = '\0';
         }
         

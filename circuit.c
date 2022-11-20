@@ -22,7 +22,7 @@
 int main(int argc, char *argv[]){
     char input[500];
     char output[500];
-    char wires[3000];
+    char wires[4000];
     char data[logSize];
     char numberToString[20];
     
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
     //Setting Variables to 0 or \0
     SetZero(input, 500);
     SetZero(output, 500);
-    SetZero(wires, 3000);
+    SetZero(wires, 4000);
     SetZero(data, logSize);
 
     struct stat st = {0};
@@ -94,15 +94,18 @@ int main(int argc, char *argv[]){
     struct mapping *mappingList;
     
     levelGatesInitialList(listhead);
-
+   
+    printf("before leveled\n");
     mappingList = leveled(listhead);
+    printf("after leveled\n");
+    //Method manipulates input wires that are going to be asked.
+    adaptToOldCodeInputsLoop(input);
 
     //Running circuit
     for(int counter=0; counter<repeat; counter++){
         strcat(data, "Run #"); //Fixing string to store input-output into a file
         sprintf(numberToString, "%d\n", counter);
         strcat(data, numberToString);
-        adaptToOldCodeInputsLoop(input);
         while(strlen(input) >= counterforinput ){
             if(input[counterforinput] == ' ' || counterforinput == strlen(input)){
                 printf("Please enter Value for input wire (%s): ", search);
@@ -132,13 +135,14 @@ int main(int argc, char *argv[]){
                 counterforinput++;
             }
         }
+        printf("Before running simulation\n");
         //ONLY LEFT to run the simulation.
         //Calculate new values of the circuit
-        // run(gateList3Head, headwire);
+        run(mappingList);
 
         // Update output value on file and write the data in to the file to have metrics 
         dataToFile(data);
-        // printGateToFile(gateList3Head);
+        printGateToFile(mappingList);
         SetZero(data, logSize);
         counterforinput=0;
     }
