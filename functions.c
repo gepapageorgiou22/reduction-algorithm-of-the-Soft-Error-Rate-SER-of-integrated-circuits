@@ -13,7 +13,8 @@
 #define inputStringSize 2000
 #define lineCount 1000
 #define wordLength 4000
-#define fileOpen "s1423_mapped.v"
+#define fileOpen "s27_mapped.v"
+//#define fileOpen "s1423_mapped.v"
 
 
 /************************************************ DO NOT TOUCH WORKING PERFECTLY *********************************************************************/
@@ -562,23 +563,6 @@ void calculateValues(struct gate *gateToCalculate) {
             gateToCalculate->outputs[0]->value = valueGateDFlipFlop(gateToCalculate);
         }
 
-}
-
-// This function runs the circuit
-void run(struct mapping *listOrder){
-
-    struct mapping *iterator;
-    int counter;
-
-    iterator = listOrder;
-    while(iterator != NULL) {
-        counter = 0;
-        while (iterator->gatesLevel[counter] != NULL) {
-            calculateValues(iterator->gatesLevel[counter]);
-            counter++;
-        }
-        iterator = iterator->mappingNext;
-    }
 }
 
 int valueGateOR(struct gate *node){
@@ -1303,11 +1287,18 @@ struct mapping * leveled(struct gate *head) {
         prev = prev->mappingNext;
     }
     printGate(head);
-    printf("Max level spoted: %d\n", getMaxLevel(head));
+    printf("Max level spoted: %d and created in total: %d\n", getMaxLevel(head), nodesCreated);
+    
     itteratorThirdList = headMapping;
+    
     for(level = 0; level <= getMaxLevel(head); level++){
         itterator = head;
+        printf("\n\n");
+        printGate(itterator);
+        printf("\n\n");
+
         positionToAdd = 0;
+
         while (itterator != NULL){
             if(itterator->layer == level) {
                 itteratorThirdList->gatesLevel[positionToAdd] = itterator;
@@ -1315,9 +1306,19 @@ struct mapping * leveled(struct gate *head) {
             }
             itterator = itterator->next;
         }
+
         itteratorThirdList = itteratorThirdList->mappingNext;
     }
 
+
+printf("\n\n");
+printf("\n\n");
+        printf("Node 1: %s, Node 2: %s, Node 3: %s, Node 4: %s, Node 5: %s\n", headMapping->gatesLevel[0]->gate_name, 
+        headMapping->mappingNext->gatesLevel[0]->gate_name, headMapping->mappingNext->mappingNext->gatesLevel[0]->gate_name,
+        headMapping->mappingNext->mappingNext->mappingNext->gatesLevel[0]->gate_name,
+        headMapping->mappingNext->mappingNext->mappingNext->mappingNext->gatesLevel[0]->gate_name);
+printf("\n\n");
+printf("\n\n");
     return headMapping;
 }
 
@@ -1451,4 +1452,32 @@ void adaptToOldCodeInputsLoop(char str[]) {
     SetZero(str, 4000);
     strcpy(str, temp);
 
+}
+
+void printMapping(struct mapping *head) {
+    while (head != NULL) {
+        for (int i = 0; i < 100; i++) {
+            if (head->gatesLevel[i] != NULL) {
+                printf("Gate name: %s\n", head->gatesLevel[i]->gate_name);
+            }
+        }
+        head = head->mappingNext;
+    }
+}
+
+// This function runs the circuit
+void run(struct mapping *listOrder){
+
+    struct mapping *iterator;
+    int counter;
+
+    iterator = listOrder;
+    while(iterator != NULL) {
+        counter = 0;
+        while (iterator->gatesLevel[counter] != NULL) {
+            calculateValues(iterator->gatesLevel[counter]);
+            counter++;
+        }
+        iterator = iterator->mappingNext;
+    }
 }

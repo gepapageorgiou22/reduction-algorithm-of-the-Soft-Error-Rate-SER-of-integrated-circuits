@@ -101,3 +101,4 @@ int getMaxLevel(struct gate *head);
 struct mapping * leveled(struct gate *head);
 void clearPtrs(struct gate *gatesLevel[]);
 void adaptToOldCodeInputsLoop(char str[]);
+void printMapping(struct mapping *head);

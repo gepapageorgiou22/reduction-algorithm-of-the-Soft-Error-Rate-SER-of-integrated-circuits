@@ -138,6 +138,7 @@ int main(int argc, char *argv[]){
         printf("Before running simulation\n");
         //ONLY LEFT to run the simulation.
         //Calculate new values of the circuit
+        printMapping(mappingList); //Leveled may not work properly.... need to be checked.
         run(mappingList);
 
         // Update output value on file and write the data in to the file to have metrics 
