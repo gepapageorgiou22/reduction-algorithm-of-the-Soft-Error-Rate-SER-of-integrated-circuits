@@ -95,9 +95,9 @@ int main(int argc, char *argv[]){
     
     levelGatesInitialList(listhead);
    
-    printf("before leveled\n");
+    
     mappingList = leveled(listhead);
-    printf("after leveled\n");
+    
     //Method manipulates input wires that are going to be asked.
     adaptToOldCodeInputsLoop(input);
 
@@ -135,11 +135,8 @@ int main(int argc, char *argv[]){
                 counterforinput++;
             }
         }
-        printf("Before running simulation\n");
-        //ONLY LEFT to run the simulation.
-        //Calculate new values of the circuit
-        printMapping(mappingList); //Leveled may not work properly.... need to be checked.
-        run(mappingList);
+
+        run(mappingList, headwire);
 
         // Update output value on file and write the data in to the file to have metrics 
         dataToFile(data);
@@ -150,14 +147,13 @@ int main(int argc, char *argv[]){
 
     
     printf("\n############################ Printing Level Order List ############################\n\n");
-    // printGate(gateList3Head);
+     printMapping(mappingList);
 
     //Free the list
     FreeMem(&listhead);
     FreeMemWire(&headwire);
-    // FreeMem(&gateList3Head);
+
     printf("\n");
     
     return 0;
 }
-

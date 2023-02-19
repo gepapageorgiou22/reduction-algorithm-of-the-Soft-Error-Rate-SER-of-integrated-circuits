@@ -59,20 +59,20 @@ void dataToFile(char *dataStr);
 char *getType(struct gate *node);
 
 // This function runs the circuit.
-void run(struct mapping *listOrder);
+void run(struct mapping *listOrder, struct wire *headwire);
 
 //Do actions for OR gate
-int valueGateOR(struct gate *node);
+int valueGateOR(struct gate *node, struct wire *headwire);
 //Do actions for NOR gate
-int valueGateNOR(struct gate *node);
+int valueGateNOR(struct gate *node, struct wire *headwire);
 //Do actions for AND gate
-int valueGateAND(struct gate *node);
+int valueGateAND(struct gate *node, struct wire *headwire);
 //Do actions for NAND gate
-int valueGateNAND(struct gate *node);
+int valueGateNAND(struct gate *node, struct wire *headwire);
 //Do actions for the inverter;
-int valueGateInverter(struct gate *node);
+int valueGateInverter(struct gate *node, struct wire *headwire);
 //Do actions for the DFlip Flop;
-int valueGateDFlipFlop(struct gate *node);
+int valueGateDFlipFlop(struct gate *node, struct wire *headwire);
 
 //Function to write results to a file
 void printGateToFile(struct mapping *head);

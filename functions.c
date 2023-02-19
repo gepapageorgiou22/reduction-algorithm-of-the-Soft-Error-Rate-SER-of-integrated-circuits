@@ -13,7 +13,7 @@
 #define inputStringSize 2000
 #define lineCount 1000
 #define wordLength 4000
-#define fileOpen "s27_mapped.v"
+#define fileOpen "s1423_mapped.v"
 //#define fileOpen "s1423_mapped.v"
 
 
@@ -22,10 +22,8 @@
 void printGate(struct gate *head){
 
     struct gate *curr = head;
-    int counter;
 
     while(curr!=NULL){
-       counter=0;
        printf("Gate with name: %s has type: %s and level: %d.\n", curr->gate_name, curr->gate_type,curr->layer);
        curr = curr->next;
     }
@@ -540,137 +538,142 @@ char *getType(struct gate *node){
     return (node->gate_type);
 }
 
-void calculateValues(struct gate *gateToCalculate) {
+void calculateValues(struct gate *gateToCalculate, struct wire *headwire) {
         
         //Based on gate type, perform actions numbers
         //place it on the wire
-        if(strcmp(gateToCalculate->gate_type,"OR") == 0){
-            gateToCalculate->outputs[0]->value = valueGateOR(gateToCalculate);
+        if(strcmp(gateToCalculate->gate_type, "OR") == 0){
+             int testValue = valueGateOR(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateToCalculate->gate_type,"NOR") == 0){
-            gateToCalculate->outputs[0]->value = valueGateNOR(gateToCalculate);
+        else if(strcmp(gateToCalculate->gate_type, "NOR") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateNOR(gateToCalculate, headwire);
+            int testValue = valueGateNOR(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateToCalculate->gate_type,"AND") == 0){
-            gateToCalculate->outputs[0]->value = valueGateAND(gateToCalculate);
+        else if(strcmp(gateToCalculate->gate_type, "AND") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateAND(gateToCalculate, headwire);
+            int testValue = valueGateAND(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateToCalculate->gate_type,"NAND") == 0){
-            gateToCalculate->outputs[0]->value = valueGateNAND(gateToCalculate);
+        else if(strcmp(gateToCalculate->gate_type, "NAND") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateNAND(gateToCalculate, headwire);
+            int testValue = valueGateNAND(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateToCalculate->gate_type,"Inverter") == 0){
-            gateToCalculate->outputs[0]->value = valueGateInverter(gateToCalculate);
+        else if(strcmp(gateToCalculate->gate_type, "Inverter") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateInverter(gateToCalculate, headwire);
+            int testValue = valueGateInverter(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateToCalculate->gate_type,"D_Flif_Flop") == 0){
-            gateToCalculate->outputs[0]->value = valueGateDFlipFlop(gateToCalculate);
+        else if(strcmp(gateToCalculate->gate_type, "D_Flif_Flop") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateDFlipFlop(gateToCalculate, headwire);
+           int testValue = valueGateDFlipFlop(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-
 }
 
-int valueGateOR(struct gate *node){
-    int counter;
-    struct gate *nodeItr;
-
-    counter=0;
+int valueGateOR(struct gate *node, struct wire *headwire){
+    int counter = 0;
     
-    nodeItr = node;
-    
-    while (nodeItr->inputs[counter] != NULL){
+    while (node->inputs[counter] != NULL){
         counter++;
     }
 
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
         // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
-            nodeItr->value = 1;
-            return 1;
+        struct wire *tmp = FindCheck(headwire, node->inputs[inpunt_count]->node_name);
+        if (tmp) {
+            if (tmp->value == 1)
+            {
+                node->value = 1;
+                return 1;
+            }
+            
         }
-        nodeItr->value = 0;
     }
     
     return 0;
 }
 
-int valueGateNOR(struct gate *node){
-    int counter;
-    struct gate *nodeItr;
-
-    counter=0;
-    nodeItr = node;
+int valueGateNOR(struct gate *node, struct wire *headwire){
+    int counter = 0;
+    int flag1 = 0;
+    int flag2 = 0;
     
-    while (nodeItr->inputs[counter] != NULL){
+    while (node->inputs[counter] != NULL){
+        counter++;
+    }
+
+    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
+        if(node->inputs[inpunt_count]->value == 1){
+            flag1 = 1;
+        }
+        if(node->inputs[inpunt_count]->value == 0){
+            flag2 = 1;
+        }
+    }
+    if(flag1 == flag2) {
+        node->value = 0;
+        return 0;
+    }
+    
+    node->value = 1;
+    return 1;
+}
+
+int valueGateAND(struct gate *node, struct wire *headwire){
+    int counter = 0;
+    int flag = 0; //flag represents if value of 1 has been found
+    
+    while (node->inputs[counter] != NULL){
         counter++;
     }
 
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
         // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
-            nodeItr->value = 0;
+        if(node->inputs[inpunt_count]->value == 1){
+            flag=1;
+        }
+        if(node->inputs[inpunt_count]->value == 0 && flag == 1){
+            node->value = 0;
             return 0;
         }
     }
-    nodeItr->value = 1;
+    node->value = 1;
 
     return 1;
 }
 
-int valueGateAND(struct gate *node){
-    int counter, flag;
-    struct gate *nodeItr;
-
-    counter=0;
-    nodeItr = node;
+int valueGateNAND(struct gate *node, struct wire *headwire){
+    int counter = 0;
+    int flag = 0;//flag represents if value of 1 has been found
     
-    while (nodeItr->inputs[counter] != NULL){
+    while (node->inputs[counter] != NULL){
         counter++;
     }
 
-    //flag represents if value of 1 has been found
-    flag=0;
-
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
+        if(node->inputs[inpunt_count]->value == 1){
             flag=1;
         }
-        if(nodeItr->inputs[inpunt_count]->value == 0 && flag == 1){
-            nodeItr->value = 0;
-            return 0;
-        }
-    }
-    nodeItr->value = 1;
-
-    return 1;
-}
-
-int valueGateNAND(struct gate *node){
-    int counter, flag;
-    struct gate *nodeItr;
-
-    counter=0;
-    nodeItr = node;
-    
-    while (nodeItr->inputs[counter] != NULL){
-        counter++;
-    }
-
-    //flag represents if value of 1 has been found
-    flag=0;
-
-    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
-            flag=1;
-        }
-        if(nodeItr->inputs[inpunt_count]->value == 0 && flag == 1){
-            nodeItr->value = 1;
+        if(node->inputs[inpunt_count]->value == 0 && flag == 1){
+            node->value = 1;
             return 1;
         }
     }
-    nodeItr->value = 0;
+    node->value = 0;
     return 0;
 }
 
-int valueGateInverter(struct gate *node){
-    int returnValue = node->inputs[0]->value;;
+int valueGateInverter(struct gate *node, struct wire *headwire){
+    int returnValue = node->inputs[0]->value;
     if (returnValue == 1){
         node->value = 0;
         return 0;
@@ -681,7 +684,7 @@ int valueGateInverter(struct gate *node){
     }
 }
 
-int valueGateDFlipFlop(struct gate *node){
+int valueGateDFlipFlop(struct gate *node, struct wire *headwire){
     if(node->inputs[1] == NULL) {
         node->value = node->inputs[0]->value;
         return node->inputs[0]->value;
@@ -1286,16 +1289,11 @@ struct mapping * leveled(struct gate *head) {
         prev->mappingNext = temp;
         prev = prev->mappingNext;
     }
-    printGate(head);
-    printf("Max level spoted: %d and created in total: %d\n", getMaxLevel(head), nodesCreated);
-    
+      
     itteratorThirdList = headMapping;
     
     for(level = 0; level <= getMaxLevel(head); level++){
         itterator = head;
-        printf("\n\n");
-        printGate(itterator);
-        printf("\n\n");
 
         positionToAdd = 0;
 
@@ -1310,15 +1308,6 @@ struct mapping * leveled(struct gate *head) {
         itteratorThirdList = itteratorThirdList->mappingNext;
     }
 
-
-printf("\n\n");
-printf("\n\n");
-        printf("Node 1: %s, Node 2: %s, Node 3: %s, Node 4: %s, Node 5: %s\n", headMapping->gatesLevel[0]->gate_name, 
-        headMapping->mappingNext->gatesLevel[0]->gate_name, headMapping->mappingNext->mappingNext->gatesLevel[0]->gate_name,
-        headMapping->mappingNext->mappingNext->mappingNext->gatesLevel[0]->gate_name,
-        headMapping->mappingNext->mappingNext->mappingNext->mappingNext->gatesLevel[0]->gate_name);
-printf("\n\n");
-printf("\n\n");
     return headMapping;
 }
 
@@ -1458,7 +1447,7 @@ void printMapping(struct mapping *head) {
     while (head != NULL) {
         for (int i = 0; i < 100; i++) {
             if (head->gatesLevel[i] != NULL) {
-                printf("Gate name: %s\n", head->gatesLevel[i]->gate_name);
+                printf("Gate name: %s with value: %d\n", head->gatesLevel[i]->gate_name, head->gatesLevel[i]->value);
             }
         }
         head = head->mappingNext;
@@ -1466,7 +1455,7 @@ void printMapping(struct mapping *head) {
 }
 
 // This function runs the circuit
-void run(struct mapping *listOrder){
+void run(struct mapping *listOrder, struct wire *headwire){
 
     struct mapping *iterator;
     int counter;
@@ -1475,7 +1464,7 @@ void run(struct mapping *listOrder){
     while(iterator != NULL) {
         counter = 0;
         while (iterator->gatesLevel[counter] != NULL) {
-            calculateValues(iterator->gatesLevel[counter]);
+            calculateValues(iterator->gatesLevel[counter], headwire);
             counter++;
         }
         iterator = iterator->mappingNext;
