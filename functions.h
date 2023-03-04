@@ -59,20 +59,46 @@ void dataToFile(char *dataStr);
 char *getType(struct gate *node);
 
 // This function runs the circuit.
-void run(struct gate *gateHead, struct wire *wireHead);
+void run(struct mapping *listOrder, struct wire *headwire);
 
 //Do actions for OR gate
-int valueGateOR(struct gate *node);
+int valueGateOR(struct gate *node, struct wire *headwire);
 //Do actions for NOR gate
-int valueGateNOR(struct gate *node);
+int valueGateNOR(struct gate *node, struct wire *headwire);
 //Do actions for AND gate
-int valueGateAND(struct gate *node);
+int valueGateAND(struct gate *node, struct wire *headwire);
 //Do actions for NAND gate
-int valueGateNAND(struct gate *node);
+int valueGateNAND(struct gate *node, struct wire *headwire);
 //Do actions for the inverter;
-int valueGateInverter(struct gate *node);
+int valueGateInverter(struct gate *node, struct wire *headwire);
 //Do actions for the DFlip Flop;
-int valueGateDFlipFlop(struct gate *node);
+int valueGateDFlipFlop(struct gate *node, struct wire *headwire);
 
 //Function to write results to a file
-void printGateToFile(struct gate *head);
+void printGateToFile(struct mapping *head);
+
+//New function to read from file
+struct gate *create(struct wire *headwire, char *input);
+void initGateInstance(struct gate *ptr, char *data);
+void setName(struct gate *ptr, char *data);
+void setType(struct gate *ptr, char *data);
+void setInutsOutputs(struct gate *ptr, char *data);
+void initWireInstance(struct wire *ptr, char *data);
+void createWireList(char inputString[], char outputString[], char wireString[], struct wire *head);
+void initLevelOfDFlipFlops(struct gate *ptr);
+int checkOccurrences(char *s, char c);
+void setInputsFlipFlop(struct gate *ptr, char *data);
+void setInputsInverter(struct gate *ptr, char *data);
+void setInputsAndNorOr(struct gate *ptr, char *data);
+void levelGatesInitialList(struct gate *listhead);
+int allGatesHaveLevels(struct gate *listhead);
+void fixFlipFlopWires(struct gate *listhead);
+void gateFix(struct gate *gateToLevel);
+void addNode(struct gate *node, struct gate **head, struct gate *newList);
+void createNewLeveledList(struct gate *listhead, struct gate *gateList3Head);
+void copyNode(struct gate *newList, struct gate *node);
+int getMaxLevel(struct gate *head);
+struct mapping * leveled(struct gate *head);
+void clearPtrs(struct gate *gatesLevel[]);
+void adaptToOldCodeInputsLoop(char str[]);
+void printMapping(struct mapping *head);

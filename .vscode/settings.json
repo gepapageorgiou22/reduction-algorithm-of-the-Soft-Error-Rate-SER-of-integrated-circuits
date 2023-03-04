@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "__bit_reference": "c",
+        "bitset": "c",
+        "chrono": "c",
+        "unordered_map": "c",
+        "string.h": "c",
+        "readfiledata.h": "c",
+        "functions.h": "c",
+        "typeinfo": "c",
+        "atomic": "c",
+        "__node_handle": "c",
+        "__memory": "c",
+        "limits": "c",
+        "optional": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "vector": "c"
+    }
+}

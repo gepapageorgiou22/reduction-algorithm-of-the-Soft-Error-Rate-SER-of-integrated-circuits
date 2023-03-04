@@ -3,48 +3,20 @@
 #include <stdio.h>
 
 #include "functions.h"
+#include "readFileData.h"
 
 #define SIZE 512
 #define MAX_FANOUT 50
-#define wireStringSize 3000
+#define wireStringSize 4000
 #define gateStringSize 1000
 #define outputStringSize 2000
 #define inputStringSize 2000
-#define fileOpen "s344_mapped.v"
+#define lineCount 1000
+#define wordLength 4000
+#define fileOpen "s1423_mapped.v"
+//#define fileOpen "s1423_mapped.v"
 
 
-//Creating all inputs that i will ask for a run
-void inputFix(char input[]){
-    int pos, counter;
-    char temp[inputStringSize];
-
-    SetZero(temp,inputStringSize);
-
-    pos=0;
-    while(pos + 8 <strlen(input)){
-        input[pos] = input[pos+8];
-        pos++;
-    }
-
-    pos=0;
-    counter=0;
-
-    while(input[pos] != ';'){
-        if(input[pos] == ','){
-            temp[counter] = input[pos+1];
-            pos += 2;
-            counter++;
-        }
-        temp[counter] = input[pos];
-        counter++;
-        pos++;
-    }
-
-    SetZero(input, inputStringSize);
-    strcpy(input, temp);
-
-    return;
-}
 /************************************************ DO NOT TOUCH WORKING PERFECTLY *********************************************************************/
 //Just printing all gates
 void printGate(struct gate *head){
@@ -52,14 +24,7 @@ void printGate(struct gate *head){
     struct gate *curr = head;
 
     while(curr!=NULL){
-       printf("Gate with name: %s has type: %s and level: %d\n", curr->gate_name, curr->gate_type,curr->layer);
-       curr = curr->next;
-    }
-
-    curr = head;
-
-    while(curr!=NULL){
-       printf("Gate with name: %s has value of: %d\n", curr->gate_name, curr->value);
+       printf("Gate with name: %s has type: %s and level: %d.\n", curr->gate_name, curr->gate_type,curr->layer);
        curr = curr->next;
     }
 
@@ -85,157 +50,6 @@ void SetZero(char str[], int size){
         str[counter] = '\0';
     }
 
-}
-
-char * StringSplit(char tosplit[]){
-    char temp[outputStringSize];
-    char splited[outputStringSize];
-    int counter = 0;
-    int counter1 = 0;
-
-    SetZero(temp, outputStringSize);
-    SetZero(splited, outputStringSize);
-
-    while(tosplit[counter] != ';'){
-        if(tosplit[counter] == '('){
-            counter++;
-            counter1=0;
-            while(tosplit[counter] != ')'){
-                temp[counter1] = tosplit[counter];
-                counter++;
-                counter1++;
-            }
-            strcat(splited, temp);
-            strcat(splited, " ");
-            SetZero(temp, outputStringSize);
-        }
-        counter++;
-    }
-
-    SetZero(tosplit, outputStringSize);
-    strcpy(tosplit, splited);
-
-    return tosplit;
-}
-
-void InputOutputSpliter(struct gate *ptr, char tosplit[]){
-    int counter1=0;
-    int counter=0, inp;
-    char Q = 'Q';
-    char Z = 'Z';
-    char temp[inputStringSize];
-
-    SetZero(temp,inputStringSize);
-
-    while(1){
-        if(tosplit[counter] == Q){
-            break;
-        }else if(tosplit[counter] == Z){
-            break;
-        }
-        counter++;
-    }
-
-    inp=counter;
-    counter1 = 0;
-
-    while(tosplit[counter-1] != ';'){
-        temp[counter1] = tosplit[counter-1];
-        counter++;
-        counter1++;
-    }
-
-    //Drop space);
-    temp[counter1-3] = '\0';
-
-    for(counter=0; counter<counter1; counter++){
-        temp[counter] = temp[counter+1];
-    }
-    char output[outputStringSize];
-    SetZero(output, outputStringSize);
-    strcpy(output, temp);
-    strcat(output, ";");
-    strcpy(ptr->gate_output, StringSplit(output));
-
-    SetZero(temp, outputStringSize);
-    for(counter=0; counter<inp; counter++){
-        temp[counter] = tosplit[counter];
-    }
-    //Drop space
-    for(counter=0; counter<inp; counter++){
-        temp[counter] = temp[counter+1];
-    }
-    temp[counter] = '\0';
-    strcat(temp,";");
-
-    strcpy(ptr->gate_inputs, StringSplit(temp));
-
-    //Setting type
-    char type[30];
-    strcpy(type, ptr->gate_name);
-    //You have 2 spaces before a letter
-    if(type[0] == 'D' || type[1] == 'D'){
-        strcpy(ptr->gate_type ,"D_Flif_Flop");
-    }
-    else if(type[0] == 'O'){
-        strcpy(ptr->gate_type, "OR");
-    }
-    else if(type[0] == 'I'){
-        strcpy(ptr->gate_type, "Inverter");
-    }
-    else if(type[0] == 'A'){
-        strcpy(ptr->gate_type, "AND");
-    }
-    else if(type[0] == 'N'){
-        if(type[1] == 'A'){
-            strcpy(ptr->gate_type, "NAND");
-        }
-        else if(type[1] == 'O'){
-            strcpy(ptr->gate_type, "NOR");
-        }
-    }
-}
-
-void BasicDataSpliter(struct gate *ptr, char tosplit[]){
-    char temp[inputStringSize];
-    int counter=0, counter1=0;
-
-    SetZero(temp,inputStringSize);
-
-    //First get the name
-    while(tosplit[counter] != '('){
-        temp[counter] = tosplit[counter];
-        counter++;
-    }
-    //Delete last space from temp_gate name
-    temp[counter] = '\0';
-    while(counter1 < counter){
-        temp[counter1] = temp[counter1+2];
-        counter1++;
-    }
-
-    //Set it to the temp_gate_name
-    strcpy(ptr->gate_name, temp);
-
-    //Clear temp string
-    SetZero(temp, inputStringSize);
-
-    //Got the Substring
-    if(tosplit[counter] == ' '){
-        counter++;
-    }
-
-    counter1 = 0;
-    while(tosplit[counter] != ';'){
-        temp[counter1] = tosplit[counter];
-        counter++;
-        counter1++;
-    }
-    //Drop space);
-    temp[counter1+2] = ';';
-
-    //Split input-output and type
-    InputOutputSpliter(ptr, temp);
 }
 
 //Clear memory droping the real head
@@ -274,243 +88,6 @@ void FreeMemWire(struct wire **ptr){
 }
 
 
-int FindInputOutputs(char stringforsearch[]){
-    int counter=0, space=0;
-
-    while(counter<stringforsearch[counter]){
-        if(stringforsearch[counter] == ' '){
-            space++;
-        }
-        counter++;
-    }
-
-    return space;
-}
-
-struct gate *CreateInitialList(char *input, char *output, char *wires){
-
-    //File pointer
-    FILE *fp;
-    char str[inputStringSize]; //String to read from file
-
-    //String for the circuit input - output - wire
-    char inputs[inputStringSize];
-    char outputs[outputStringSize];
-    char wire[wireStringSize];
-    char readtemp[wireStringSize];
-    char read[wireStringSize];
-
-    //String for universal use for small calculations. Does not take date from wires-gates etc
-    char temp[50]; 
-
-    //Which line from file i read starting from input(0)
-    int counter, lineread = 0;
-    int flag=0;
-
-    //Head of temp linked list
-    struct gate *head = NULL;
-    struct gate *tnode;
-    struct gate *curr;
-
-    //Initialize everything to \0
-    SetZero(str, inputStringSize);
-    SetZero(inputs, inputStringSize);
-    SetZero(outputs, outputStringSize);
-    SetZero(wire, wireStringSize);
-    SetZero(readtemp, wireStringSize);
-    SetZero(read, wireStringSize);
-    SetZero(temp,50);
-
-    // opening file for reading
-    fp = fopen(fileOpen , "r");
-    if(fp == NULL) {
-       perror("Error opening file");
-
-      return NULL;
-    }
-
-   while(fgets(str, inputStringSize, fp)!= NULL){
-
-       strcpy(readtemp,str);
-
-       if(readtemp[0] == '/'){
-            SetZero(str, inputStringSize);
-            SetZero(readtemp, wireStringSize);
-            continue;
-        }
-
-        //Start code here for structure!!!!!
-
-        //Throw first line saying module
-        //Check first only for m only for speed
-        if(readtemp[0] == 'm'){
-            SetZero(temp,50);
-            for(counter=0; counter<6; counter++){
-                temp[counter] = readtemp[counter];
-            }
-            if(!strcmp(temp,"module")){
-                lineread = 0;
-                continue;
-            }
-            else{
-                return NULL;
-            }
-        }
-
-        //Throw last line saying endmodule
-        if(readtemp[0] == 'e'){
-            //SetZero(readtemp,10);
-            for(counter=0; counter<9; counter++){
-                temp[counter] = readtemp[counter];
-            }
-            if(!strcmp(temp,"endmodule")){
-                break;
-            }
-            else{
-                printf("Temp is %s\n", temp);
-                return NULL;
-            }
-        }
-
-        //do it until \n so we can track ,
-        counter=0;
-        while(readtemp[counter] != '\n'){
-            if(readtemp[counter] == ';'){break;}
-            counter++;
-        }
-        
-        if(readtemp[counter-1] == ','){
-            strcat(read, readtemp);
-            flag = 1;
-            continue;
-        }
-        if(flag == 1){
-            strcat(read, readtemp);
-        }
-
-        if(flag == 0){
-            strcpy(read, readtemp);
-        }
-
-
-        //Read inputs
-        if(lineread == 0){
-            strcpy(inputs, read);
-            SetZero(str, inputStringSize);
-            SetZero(readtemp, wireStringSize);
-            SetZero(read, wireStringSize);
-            lineread++;
-            continue;
-        }
-        //Read output
-        if(lineread == 1){
-            strcpy(outputs, read);
-            SetZero(str, inputStringSize);
-            SetZero(readtemp, wireStringSize);
-            SetZero(read, wireStringSize);
-            lineread++;
-            continue;
-        }
-        //Read wire
-        if(lineread == 2){
-            strcpy(wire, read);
-            SetZero(str, inputStringSize);
-            SetZero(readtemp, wireStringSize);
-            SetZero(read, wireStringSize);
-            lineread++;
-            continue;
-        }
-
-        //Drop empty lines no line will have length less than 2
-        if(strlen(read) < 3){
-            lineread++;
-            continue;
-        }
-
-        //lineread is 4 means i just started reading the temp_gates
-        if(lineread == 4){
-            head = (struct gate *)malloc(sizeof(struct gate));
-            if(head == NULL){
-                printf("Error alocating memmory for the temp_gate!!!\nExiting...\n");
-                return NULL;
-            }
-            BasicDataSpliter(head, read);
-            head->next = NULL;
-            head->layer = -1;
-            lineread++;
-            SetZero(str, inputStringSize);
-            SetZero(readtemp, wireStringSize);
-            SetZero(read, wireStringSize);
-            tnode = head;
-
-            continue;
-        }
-        curr = (struct gate *)malloc(sizeof(struct gate));
-        if(curr == NULL){
-            printf("Error alocating memmory for the temp_gate!!!\nExiting...\n");
-            return NULL;
-        }
-
-        //Fix first list
-        tnode->next = curr;
-        curr->layer = -1;
-        curr->next = NULL;
-        BasicDataSpliter(curr, read);
-        lineread++;
-        tnode = curr;
-
-        flag = 0;
-
-        SetZero(str, inputStringSize);
-        SetZero(readtemp, wireStringSize);
-        SetZero(read, wireStringSize);
-
-    }
-    strcpy(input,inputs);
-    strcpy(output, outputs);
-    strcpy(wires, wire);
-
-    //Close pointer to file
-    fclose(fp);
-
-    return head;
-}
-
-struct gate *Find(struct gate *ptr, char stringforsearch[], struct gate *value[]){
-    struct gate *curr;
-    int counter, i=0;
-
-    char *ret;
-    for(counter=0; counter<40; counter++){
-        value[counter] = NULL;
-    }
-
-    curr=ptr;
-
-    while(curr != NULL){
-        ret = strstr(curr->gate_inputs, stringforsearch);
-        if(ret != NULL){
-            value[i] = curr;
-            i++;
-        }
-        curr = curr->next;
-    }
-
-    return NULL;
-}
-
-void counts(struct gate *head){
-    struct gate *curr;
-
-    curr = head;
-
-    while(curr != NULL){
-        curr->input = FindInputOutputs(curr->gate_inputs);
-        curr->output = FindInputOutputs(curr->gate_output);
-        curr = curr->next;
-    }
-}
-
 struct wire *FindCheck(struct wire *ptr, char stringforsearch[]){
     struct wire *curr;
 
@@ -527,166 +104,6 @@ struct wire *FindCheck(struct wire *ptr, char stringforsearch[]){
     }
 
     return NULL;
-}
-
-void StringForWireList(char input[], char output[], char wire[], char str[]){
-    int counter = 0;
-    char inputtemp[inputStringSize]={'\0'};
-    char outputtemp[outputStringSize] ={'\0'};
-    char wiretemp[wireStringSize]= {'\0'};
-
-    strcpy(inputtemp, input);
-    strcpy(outputtemp, output);
-    strcpy(wiretemp, wire);
-
-    for(counter=0; counter<strlen(inputtemp); counter++){
-        if(inputtemp[counter] == ';'){
-            inputtemp[counter] = '\0';
-        }
-
-        if(counter + 8 > inputStringSize ){
-            inputtemp[counter] = '\0';
-        }
-        else{
-            inputtemp[counter] = inputtemp[counter + 8];
-        }
-    }
-
-    for(counter=0; counter<strlen(outputtemp); counter++){
-        if(outputtemp[counter] == ';'){
-            outputtemp[counter] = '\0';
-        }
-        if(counter + 12 > outputStringSize ){
-            outputtemp[counter] = '\0';
-        }
-        else{
-            outputtemp[counter] = outputtemp[counter + 8];
-        }
-    }
-
-    for(counter=0; counter<strlen(wiretemp); counter++){
-        if(wiretemp[counter] == ';'){
-            wiretemp[counter] = '\0';
-        }
-        if(counter + 12 > wireStringSize ){
-            wiretemp[counter] = '\0';
-        }
-        else{
-            wiretemp[counter] = wiretemp[counter + 8];
-        }
-    }
-
-    strcat(str, inputtemp);
-    strcat(str, outputtemp);
-    strcat(str, wiretemp);
-
-    counter=0;
-
-    while(counter < strlen(str)){
-        if(str[counter] == '\n'){
-            str[counter] = ' ';
-        }
-        if(str[counter] == ','){
-            str[counter] = ' ';
-        }
-        if(str[counter] == ';'){
-            str[counter] = ' ';
-        }
-        counter++;
-    }
-
-    int space=0;
-
-    counter=0;
-    int counter1;
-    while(counter < strlen(str)){
-        if(str[counter] == ' '){
-            space++;
-        }
-        if(space > 1){
-            for(counter1 = counter; counter1 < strlen(str); counter1++){
-                str[counter1] = str[counter1+1];
-            }
-            counter = counter-2;
-            space=0;
-        }
-        counter++;
-    }
-
-}
-
-struct wire *InitializeWireList(char input[], char output[], char wire[]){
-    struct wire *head, *temp, *curr;
-
-    int counter, i, counter1=0;
-    char temporary[100];
-    char str[inputStringSize + outputStringSize +wireStringSize] = {'\0'};
-
-    StringForWireList(input, output, wire, str);
-
-    head = (struct wire *)malloc(sizeof(struct wire));
-    if(head == NULL){
-        printf("Error allocating memmory for wirelist\n");
-        return NULL;
-    }
-
-    counter=0;
-    SetZero(temporary, 100);
-
-    while(1){
-        if(str[counter] == ' '){
-            break;
-        }
-        temporary[counter] = str[counter];
-        counter++;
-    }
-    strcpy(head->node_name, temporary);
-    if(strstr(input, temporary) != NULL){
-        head->layer = 0;
-    }
-    else{
-        head->layer = -1;
-    }
-
-    curr = head;
-
-    counter++;
-    i=counter;
-    while( i < strlen(str)){
-        i++;
-        SetZero(temporary, 100);
-
-        temp = (struct wire *)malloc(sizeof(struct wire));
-        if(temp == NULL){
-            printf("Error at memory!\n");
-            return NULL;
-        }
-
-        counter1 = 0;
-        while(1){
-            if(str[counter] == ' '){
-                counter++;
-                break;
-            }
-            temporary[counter1] = str[counter];
-            counter++;
-            counter1++;
-            i++;
-        }
-        if(strstr(input, temporary) != NULL){
-            temp->layer = 0;
-        }
-        else{
-            temp->layer = -1;
-        }
-        strcpy(temp->node_name, temporary);
-        temp->value = 0;
-        curr->next = temp;
-        curr = temp;
-    }
-
-    return head;
-
 }
 
 void null(struct gate *head){
@@ -706,43 +123,88 @@ void null(struct gate *head){
     }
 }
 
+int checkOccurrences(char *s,char c) {
+    int i,count=0;
+     for(i=0;s[i];i++)  
+    {
+    	if(s[i]==c)
+    	{
+          count++;
+		}
+ 	}
+ 	return count;  
+ }
+
 void connect(struct gate *headgate, struct wire *headwire){
     struct gate *currgate;
     struct wire *currwire;
-    int counter, i=0, j=0;
+    int counter, i=0, j=0, flag=0;
     char temp[100] = {'\0'};
+    int variablesCount;
+     int testsdasta, testsdasta1=0;
 
     //Loop to go throw gate list and connect it times as inputs to the correct wire list
     for(currgate = headgate; currgate != NULL; currgate = currgate->next){
 
-        //Adding delimiter for spliting the strings in the string
-        currgate->gate_inputs[strlen(currgate->gate_inputs)-1] = '/';
-        for(counter=0; counter<currgate->input; counter++){
-            while(currgate->gate_inputs[i] != ' '){
-                if(currgate->gate_inputs[i] == '/'){
-                    break;
-                }
-                temp[j] = currgate->gate_inputs[i];
-                i++;
-                j++;
-            }
+        variablesCount = checkOccurrences(currgate->gate_inputs, ',');
 
+        if(variablesCount == 0) { // Only 1 input
+            strcpy(temp, currgate->gate_inputs);
             currwire = FindCheck(headwire, temp);
             if(currwire == NULL){
-                printf("Something went wrong!!\n");
+                printWire(headwire);
+                printGate(headgate);
+                printf("Something went wrong finding wire: %s!\n", temp);
                 exit(1);
             }
-            SetZero(temp,100);
-            j=0;
-            i++;
-
-            //Build pointers from here on
-            currgate->inputs[counter] = currwire;
+            currgate->inputs[0] = currwire;
         }
-        i=0;
 
-        //Removing delimiter now
-        currgate->gate_inputs[strlen(currgate->gate_inputs)-1] = '\0';
+        //More than 1 inputs
+        else{
+            i=0;
+            for(counter=0; counter<variablesCount; counter++){
+                j=0;
+                SetZero(temp,100);
+                while(currgate->gate_inputs[i] != ',' && flag == 0){
+                    if(i == strlen(currgate->gate_inputs)){
+                        flag = 1;
+                    }
+                    temp[j] = currgate->gate_inputs[i];
+                    i++;
+                    j++;
+                }
+            
+                currwire = FindCheck(headwire, temp);
+                if(currwire == NULL){
+                    printWire(headwire);
+                    printf("Something went wrong finding wire: %s!\n", temp);
+                    exit(1);
+                }
+                i++;
+
+                //Build pointers from here on
+                currgate->inputs[counter] = currwire;
+            }
+
+            SetZero(temp, 100);
+           testsdasta1=0;
+
+            for(testsdasta=i; testsdasta<strlen(currgate->gate_inputs); testsdasta++) {
+                temp[testsdasta1] = currgate->gate_inputs[testsdasta];
+                testsdasta1++;
+            }
+
+                currwire = FindCheck(headwire, temp);
+                if(currwire == NULL){
+                    printWire(headwire);
+                    printf("Something went wrong finding wire: %s!\n", temp);
+                    exit(1);
+                }
+                currgate->inputs[counter] = currwire;
+        }
+
+        i=0;
     }
 
     //Set zero to temp string
@@ -750,126 +212,67 @@ void connect(struct gate *headgate, struct wire *headwire){
 
     //Loop to go throw gate list and connect it times as outputs to the correct wire list
     for(currgate = headgate; currgate != NULL; currgate = currgate->next){
-        //Adding delimiter for spliting the strings in the string
-        currgate->gate_output[strlen(currgate->gate_output)-1] = '/';
-        for(counter=0; counter<currgate->output; counter++){
-            while(currgate->gate_output[i] != ' '){
-                if(currgate->gate_output[i] == '/'){
-                    break;
-                }
-                temp[j] = currgate->gate_output[i];
-                i++;
-                j++;
-            }
-
+        flag=0;
+    
+        variablesCount = checkOccurrences(currgate->gate_output, ',');
+        if(variablesCount == 0) { // Only 1 output
+            strcpy(temp, currgate->gate_output);
             currwire = FindCheck(headwire, temp);
             if(currwire == NULL){
-                printf("Something went wrong1!!\n");
+                printWire(headwire);
+                printf("Something went wrong finding wire: %s!!!!\n", temp);
                 exit(1);
             }
-            SetZero(temp,100);
-            j=0;
-            i++;
+            currgate->outputs[0] = currwire;
+        }
+        else {
+            for(counter=0; counter<variablesCount; counter++){
+                SetZero(temp,100);
+                j = 0;
+                while(currgate->gate_output[i] != ',' && flag == 0){
+                    if(i == strlen(currgate->gate_output)){
+                        flag = 1;
+                    }
+                    temp[j] = currgate->gate_output[i];
+                    i++;
+                    j++;
+                }
+            
+                currwire = FindCheck(headwire, temp);
+                if(currwire == NULL){
+                    printf("Something went wrong!!\n");
+                    exit(1);
+                }
+                SetZero(temp,100);
+                j=0;
+                i++;
 
-            //Build pointers from here on
-            currgate->outputs[counter] = currwire;
+                //Build pointers from here on
+                currgate->outputs[0] = currwire;
+            }
+
+            SetZero(temp, 100);
+            testsdasta1=0;
+
+            for(testsdasta=i; testsdasta<strlen(currgate->gate_output); testsdasta++) {
+                temp[testsdasta1] = currgate->gate_output[testsdasta];
+                testsdasta1++;
+            }
+
+                currwire = FindCheck(headwire, temp);
+                if(currwire == NULL){
+                    printWire(headwire);
+                    printf("Something went wrong finding wire: %s!\n", temp);
+                    exit(1);
+                }
+                currgate->outputs[1] = currwire;
         }
         i=0;
-        //Remove delimiter now
-        currgate->gate_output[strlen(currgate->gate_output)-1] = '\0';
     }
-
-    //Setting level to the flip flops after connecting gates with wires
-    levelSetToDFlipFlops(headgate);
 
 }
 /******************************************************************************************************************************************************/
 
-//Function used to virtualy run the circuit
-void circuitRun(struct wire *headWire, struct gate *headGate){
-    // struct wire *wireIterator, *wireTemp;
-    // struct gate *gateIterator, *gateTemp;
-
-    // wireIterator = headWire;
-    // gateIterator = headGate;
-
-    // while(gateIterator != NULL){
-
-    // }
-}
-
-// struct gate *nodeFound(struct gate *head, )
-
-void listDel(struct gate *head, struct gate *todel){
-    struct gate *iterator, *temp;
-
-    iterator = head;
-
-    while(iterator != todel){
-        temp = iterator;
-        iterator = iterator->next;
-    }
-
-    temp->next = iterator->next;
-    free(iterator); //Should i free it or at the end of the list???????
-}
-
-struct gate *createCircuitInOrder(struct gate *headGate, struct wire *headWire){
-//     struct gate *tempHead; //Temporary listhead to fix the circuit in layers
-//     struct gate *temp, *tempgate;
-//     struct gate *newHead; //new gate list gate
-//     struct gate *newTemp;
-
-//     struct wire *tempHeadWire;
-//     struct wire *tempwire;
-
-//     tempgate = headGate;
-//     tempHeadWire = headWire;
-
-// //     newHead = (struct gate*)malloc(sizeof(struct gate));
-// //     if(newHead == NULL){
-// //         printf("Error creating level order list\n");
-// //         exit -1;
-// //     }
-// //
-// //     newHead->next = NULL;
-// //     newHead->layer = 0;
-
-//     //Set 0 layer for every flip flop
-//     while(tempgate != NULL){
-//         if(strcmp(tempgate->gate_type, "D_Flif_Flop")==0){
-//             tempgate->outputs[0]->layer = 0;
-//             if(tempgate->outputs[1] != NULL){
-//                 tempgate->outputs[1]->layer = 0;
-//             }
-//         }
-//         tempgate = tempgate->next;
-//      }
-
-     return NULL;
-
-}
-
-void levelSetToDFlipFlops(struct gate *headGate){
-
-    struct gate *curr = headGate;
-
-    while(curr != NULL){
-        if(strcmp(curr->gate_type, "D_Flif_Flop") == 0){ //Found Flip FLop
-            curr->layer = 0;
-        }
-        curr = curr->next;
-    }
-}
-
-
-//Set levels to the wires
- void levelSet(struct wire *headwire, struct gate *headGate){
-
-//     struct wire *wireTemp = headwire;
-//     struct gate *gateTemp;
-
- }
 
 struct gate *rebuildLevelOrderLayer0(struct gate **head){
     struct gate *newHead;
@@ -950,6 +353,7 @@ void restGatesLeveled(struct gate *head, struct wire *headWire, int level){
             inputCount++;
             counter++;
         }
+        iterator->input = inputCount;
         flag = 0;
         for(pos=0; pos<inputCount; pos++){
             if(iterator->inputs[pos]->layer <= level && iterator->inputs[pos]->layer >= 0){
@@ -1134,152 +538,142 @@ char *getType(struct gate *node){
     return (node->gate_type);
 }
 
-// This function runs the circuit
-void run(struct gate *gateHead, struct wire *wireHead){
-
-    struct gate *gateIter;
-
-    gateIter = gateHead;
-
-    //Loop to iterate the list3 and create new values
-    while(gateIter != NULL){
-
+void calculateValues(struct gate *gateToCalculate, struct wire *headwire) {
+        
         //Based on gate type, perform actions numbers
         //place it on the wire
-
-        //OR GATE HERE
-        if(strcmp(gateIter->gate_type,"OR") == 0){
-            gateIter->outputs[0]->value = valueGateOR(gateIter);
+        if(strcmp(gateToCalculate->gate_type, "OR") == 0){
+             int testValue = valueGateOR(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateIter->gate_type,"NOR") == 0){
-            gateIter->outputs[0]->value = valueGateNOR(gateIter);
+        else if(strcmp(gateToCalculate->gate_type, "NOR") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateNOR(gateToCalculate, headwire);
+            int testValue = valueGateNOR(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateIter->gate_type,"AND") == 0){
-            gateIter->outputs[0]->value = valueGateAND(gateIter);
+        else if(strcmp(gateToCalculate->gate_type, "AND") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateAND(gateToCalculate, headwire);
+            int testValue = valueGateAND(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateIter->gate_type,"NAND") == 0){
-            gateIter->outputs[0]->value = valueGateNAND(gateIter);
+        else if(strcmp(gateToCalculate->gate_type, "NAND") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateNAND(gateToCalculate, headwire);
+            int testValue = valueGateNAND(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateIter->gate_type,"Inverter") == 0){
-            gateIter->outputs[0]->value = valueGateInverter(gateIter);
+        else if(strcmp(gateToCalculate->gate_type, "Inverter") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateInverter(gateToCalculate, headwire);
+            int testValue = valueGateInverter(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        else if(strcmp(gateIter->gate_type,"D_Flif_Flop") == 0){
-            gateIter->outputs[0]->value = valueGateDFlipFlop(gateIter);
+        else if(strcmp(gateToCalculate->gate_type, "D_Flif_Flop") == 0){
+            // gateToCalculate->outputs[0]->value = valueGateDFlipFlop(gateToCalculate, headwire);
+           int testValue = valueGateDFlipFlop(gateToCalculate, headwire);
+            gateToCalculate->outputs[0]->value = testValue;
+            gateToCalculate->value = testValue;
         }
-        
-        gateIter = gateIter->next;
-    }
-
 }
 
-int valueGateOR(struct gate *node){
-    int counter;
-    struct gate *nodeItr;
-
-    counter=0;
+int valueGateOR(struct gate *node, struct wire *headwire){
+    int counter = 0;
     
-    nodeItr = node;
-    
-    while (nodeItr->inputs[counter] != NULL){
+    while (node->inputs[counter] != NULL){
         counter++;
     }
 
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        printf("Gate %s with input %s and value %d\n", nodeItr->gate_name, nodeItr->inputs[inpunt_count]->node_name, nodeItr->inputs[inpunt_count]->value);
         // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
-            printf("Found 1 exiting...\n");
-            nodeItr->value = 1;
-            return 1;
+        struct wire *tmp = FindCheck(headwire, node->inputs[inpunt_count]->node_name);
+        if (tmp) {
+            if (tmp->value == 1)
+            {
+                node->value = 1;
+                return 1;
+            }
+            
         }
-        nodeItr->value = 0;
     }
     
     return 0;
 }
 
-int valueGateNOR(struct gate *node){
-    int counter;
-    struct gate *nodeItr;
-
-    counter=0;
-    nodeItr = node;
+int valueGateNOR(struct gate *node, struct wire *headwire){
+    int counter = 0;
+    int flag1 = 0;
+    int flag2 = 0;
     
-    while (nodeItr->inputs[counter] != NULL){
+    while (node->inputs[counter] != NULL){
+        counter++;
+    }
+
+    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
+        if(node->inputs[inpunt_count]->value == 1){
+            flag1 = 1;
+        }
+        if(node->inputs[inpunt_count]->value == 0){
+            flag2 = 1;
+        }
+    }
+    if(flag1 == flag2) {
+        node->value = 0;
+        return 0;
+    }
+    
+    node->value = 1;
+    return 1;
+}
+
+int valueGateAND(struct gate *node, struct wire *headwire){
+    int counter = 0;
+    int flag = 0; //flag represents if value of 1 has been found
+    
+    while (node->inputs[counter] != NULL){
         counter++;
     }
 
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
         // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
-            nodeItr->value = 0;
+        if(node->inputs[inpunt_count]->value == 1){
+            flag=1;
+        }
+        if(node->inputs[inpunt_count]->value == 0 && flag == 1){
+            node->value = 0;
             return 0;
         }
     }
-    nodeItr->value = 1;
+    node->value = 1;
 
     return 1;
 }
 
-int valueGateAND(struct gate *node){
-    int counter, flag;
-    struct gate *nodeItr;
-
-    counter=0;
-    nodeItr = node;
+int valueGateNAND(struct gate *node, struct wire *headwire){
+    int counter = 0;
+    int flag = 0;//flag represents if value of 1 has been found
     
-    while (nodeItr->inputs[counter] != NULL){
+    while (node->inputs[counter] != NULL){
         counter++;
     }
 
-    //flag represents if value of 1 has been found
-    flag=0;
-
     for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
+        if(node->inputs[inpunt_count]->value == 1){
             flag=1;
         }
-        if(nodeItr->inputs[inpunt_count]->value == 0 && flag == 1){
-            nodeItr->value = 0;
-            return 0;
-        }
-    }
-    nodeItr->value = 1;
-
-    return 1;
-}
-
-int valueGateNAND(struct gate *node){
-    int counter, flag;
-    struct gate *nodeItr;
-
-    counter=0;
-    nodeItr = node;
-    
-    while (nodeItr->inputs[counter] != NULL){
-        counter++;
-    }
-
-    //flag represents if value of 1 has been found
-    flag=0;
-
-    for(int inpunt_count=0; inpunt_count<counter; inpunt_count++){
-        // In OR gate if 1 is found as one input output is 1
-        if(nodeItr->inputs[inpunt_count]->value == 1){
-            flag=1;
-        }
-        if(nodeItr->inputs[inpunt_count]->value == 0 && flag == 1){
-            nodeItr->value = 1;
+        if(node->inputs[inpunt_count]->value == 0 && flag == 1){
+            node->value = 1;
             return 1;
         }
     }
-    nodeItr->value = 0;
+    node->value = 0;
     return 0;
 }
 
-int valueGateInverter(struct gate *node){
-    int returnValue = node->inputs[0]->value;;
+int valueGateInverter(struct gate *node, struct wire *headwire){
+    int returnValue = node->inputs[0]->value;
     if (returnValue == 1){
         node->value = 0;
         return 0;
@@ -1290,16 +684,22 @@ int valueGateInverter(struct gate *node){
     }
 }
 
-int valueGateDFlipFlop(struct gate *node){
-    printf("Here is a flip flop. Value is %d\n", node->inputs[1]->value);
-    node->value = node->inputs[1]->value;
-    return node->inputs[1]->value;
+int valueGateDFlipFlop(struct gate *node, struct wire *headwire){
+    if(node->inputs[1] == NULL) {
+        node->value = node->inputs[0]->value;
+        return node->inputs[0]->value;
+    }
+    else {
+        node->value = node->inputs[1]->value;
+        return node->inputs[1]->value;
+    }
 }
 
 //Function that prints the gates values at each run to the file
-void printGateToFile(struct gate *head){
+void printGateToFile(struct mapping *head){
 
-    struct gate *curr = head;
+    struct mapping *curr = head;
+    int counter;
     FILE *pFile;
 
     pFile=fopen("data/inputs_outputs_logs.txt", "a");
@@ -1308,9 +708,765 @@ void printGateToFile(struct gate *head){
         return;
     }
 
-    while(curr!=NULL){
-       fprintf(pFile, "Gate with name: %s has value of: %d\n", curr->gate_name, curr->value);
-       curr = curr->next;
+    while(curr != NULL) {
+        counter=0;
+        while (curr->gatesLevel[counter] != NULL) {
+            fprintf(pFile, "Gate with name: %s has value of: %d\n", curr->gatesLevel[counter]->gate_name, curr->gatesLevel[counter]->value);
+            counter++;
+        }
+        curr = curr->mappingNext;
     }
+
     fclose(pFile);
+}
+
+
+struct gate *create(struct wire *headwire, char *input) {
+    char array[1000][4000]; //This array contains each line from the verilog file
+    struct gate *head, *curr, *tempHead;
+    int counter;
+
+    prepareData(fileOpen, array);
+
+    //Gates information will be at position 4. In case not, increase lenth from 3000 to a higher value
+    head = (struct gate *)malloc(sizeof(struct gate));
+    if(head == NULL){
+        printf("Error allocating memmory for the head of the gate list!\n");
+        return head;
+    }
+    tempHead = head;
+    initGateInstance(head, array[4]);
+    counter = 5;
+    while (array[counter][0] != 'e'){
+        curr = (struct gate *)malloc(sizeof(struct gate));
+        if(curr == NULL){
+            printf("Error allocating memmory for the head of the gate list!\n");
+            return curr;
+        }
+        initGateInstance(curr, array[counter]);
+        tempHead -> next = curr;
+        tempHead = curr;
+        counter++;
+    }
+
+    createWireList(array[1], array[2], array[3], headwire);
+    strcpy(input, array[1]);
+
+    return head;
+}
+
+void createWireList(char inputString[], char outputString[], char wireString[], struct wire *head) {
+    struct wire *curr, *temp;
+    char wireName[20];
+    int counter=5, i=0, flag=0;
+
+    while(inputString[counter]!= ','){
+        wireName[i] = inputString[counter];
+        i++;
+        counter++;
+    }
+
+    initWireInstance(head, wireName);
+    head->layer = 0; //Level is 0 because it is input to the circuit
+    temp = head;
+    counter++; //go after comma
+
+    //create inputWires
+    while(inputString[counter] != ';' && flag != 1){
+        SetZero(wireName, 20);
+        i=0;
+        while(inputString[counter] != ',' && flag != 1){
+            if(inputString[counter+1] == ';'){
+                flag = 1;
+            }
+            wireName[i] = inputString[counter];
+            i++;
+            counter++;
+        }
+        curr = (struct wire *)malloc(sizeof(struct wire));
+        if(curr == NULL){
+            printf("Error allocating memmory for wire list\n");
+            return;
+        }
+        initWireInstance(curr, wireName);
+        curr->layer = 0;
+        temp -> next = curr;
+        temp = curr;
+        counter++;
+    }
+    
+    counter = 6; //Position ending output
+    flag = 0;
+
+    //Create output wires
+    while(outputString[counter] != ';' && flag != 1){
+        SetZero(wireName, 20);
+        i=0;
+        while(outputString[counter]!= ','){
+            if(outputString[counter+1] == ';'){
+                wireName[i] = outputString[counter];
+                i++;
+                counter++;
+                flag = 1;
+                break;
+            }
+            wireName[i] = outputString[counter];
+            i++;
+            counter++;
+        }
+        if(wireName[strlen(wireName)] == ';') {
+            wireName[strlen(wireName)] = '\0';
+        }
+
+        curr = (struct wire *)malloc(sizeof(struct wire));
+        if(curr == NULL){
+            printf("Error allocating memmory for wire list\n");
+            return ;
+        }
+        initWireInstance(curr, wireName);
+        temp -> next = curr;
+        temp = curr;
+        counter++;
+    }
+
+    counter = 4; //Position ending wire word
+    flag = 0;
+    //Create wire wires
+    while(wireString[counter] != ';' && flag != 1){
+        SetZero(wireName, 20);
+        i=0;
+        while(wireString[counter]!= ','){
+            if(wireString[counter+1] == ';'){
+                wireName[i] = wireString[counter];
+                i++;
+                counter++;
+                flag = 1;
+                break;
+            }
+            wireName[i] = wireString[counter];
+            i++;
+            counter++;
+        }
+        curr = (struct wire *)malloc(sizeof(struct wire));
+        if(curr == NULL){
+            printf("Error allocating memmory for wire list\n");
+            return;
+        }
+        initWireInstance(curr, wireName);
+        temp -> next = curr;
+        temp = curr;
+        counter++;
+    }
+}
+
+void initWireInstance(struct wire *ptr, char *data){
+    ptr->next = NULL;
+    ptr->layer = -1;
+    ptr->value = 0;
+    strcpy(ptr->node_name, data);
+}
+
+void initGateInstance(struct gate *ptr, char *data) {
+    ptr->next = NULL;
+    ptr->layer = -1;
+
+    //Set type
+    setType(ptr, data);
+
+    //Set name
+    setName(ptr, data);
+
+    //Set input - output of the gate
+    setInutsOutputs(ptr, data);
+
+    initLevelOfDFlipFlops(ptr);
+}
+
+void initLevelOfDFlipFlops(struct gate *ptr) {
+    struct gate *iterator;
+
+    iterator = ptr;
+
+    while(iterator != NULL){
+        if(strcmp(iterator->gate_type, "D_Flif_Flop") == 0) {
+            iterator->layer = 0;
+        }
+        iterator = iterator->next;
+    }
+}
+
+void setInutsOutputs(struct gate *ptr, char *data) {
+    int counter, i = 0;
+    char inputs[300];
+    char outputs[300];
+    char newData[lineCount];
+
+
+    SetZero(inputs, 300);
+    SetZero(outputs, 300);
+    SetZero(newData, lineCount);
+
+    while (data[i] != '('){
+        i++;
+    }
+    i++; //Now we have passed the first '(' -> meaning we arrived at input output
+
+    if(data[i] == '.'){
+        i++;
+    }
+
+    for(counter = 0; counter< strlen(data); counter++) {
+        newData[counter] = data[i];
+        i++;
+    }
+
+    if(strcmp(ptr->gate_type, "D_Flif_Flop") == 0){
+        setInputsFlipFlop(ptr, newData);
+    }
+    else if(strcmp(ptr->gate_type, "INVERTER") == 0){ //Not flip flop
+        setInputsInverter(ptr, newData);
+    }
+    else{
+        setInputsAndNorOr(ptr, newData);
+    }
+
+}
+
+void setInputsFlipFlop(struct gate *ptr, char *data) {
+        char outputs[300];
+        char inputs[300];
+        int i, j, counter;
+        int flag = 0 ;
+
+        SetZero(outputs, 300);
+        SetZero(inputs, 300);
+        j=0;
+        i=0;
+        counter = 0;
+        while(i<strlen(data)) {
+            if(data[i] == ','){
+                i++;
+            }
+            if(data[i] == '.'){
+                i++;
+            }
+            if(data[i] == 'D'){
+                i = i+2;
+                while(data[i] != ')'){
+                    inputs[j] = data[i];
+                    i++;
+                    j++;
+                }
+            }
+            else if(data[i] == 'C'){
+                i++; //We do not use CLK at the momment
+            }
+            else if(data[i] == 'Q') {
+                i++;
+                if(data[i] == '('){
+                    i++;
+                    while(data[i] != ')'){
+                        outputs[counter] = data[i];
+                        counter++;
+                        i++;
+                        flag = 1;
+                    }
+                }
+                else if (data[i] == 'N'){
+                    if(flag == 1) {
+                        outputs[counter] = ',';
+                        counter++;
+                    }
+                    i = i + 2;
+                    while (data[i] != ')'){
+                        outputs[counter] = data[i];
+                        counter++;
+                        i++;
+                    }
+                }
+            }
+            else{
+                i++;
+            }
+        }
+        strcpy(ptr->gate_inputs, inputs);
+        strcpy(ptr->gate_output, outputs);
+}
+
+void setInputsInverter(struct gate *ptr, char *data) {
+        
+        char outputs[300];
+        char inputs[300];
+        int i, j, counter;
+
+        SetZero(outputs, 300);
+        SetZero(inputs, 300);
+        counter=0;
+        i=0;
+        j=0;
+        while(i<strlen(data)) {
+            if(data[i] == ','){
+                i++;
+                continue;
+            }
+            if(data[i] == '.'){
+                i++;
+                continue;
+            }
+            if(data[i] == 'Z'){
+                while(data[i] != '('){ 
+                    i++;
+                }
+                i++;
+                
+                while(data[i] != ')'){
+                    outputs[counter] = data[i];
+                    i++;
+                    counter++;
+                }
+                strcpy(ptr->gate_output, outputs);
+            }
+            else if(data[i] == 'A') {
+                i++;
+                while(data[i] != '(') {
+                    i++;
+                }
+                i++;
+                while(data[i] != ')'){
+                    inputs[j] = data[i];
+                    j++;
+                    i++;
+                }
+                strcpy(ptr->gate_inputs, inputs);
+            }
+            i++;
+        }
+}
+
+void setInputsAndNorOr(struct gate *ptr, char *data) {
+        char outputs[300];
+        char inputs[300];
+        int i, j, count;
+
+        SetZero(outputs, 300);
+        SetZero(inputs, 300);
+        j=0;
+        i = 0;
+        count = 0;
+        while(i<strlen(data)) {
+            if(data[i] == ','){
+                i++;
+            }
+            if(data[i] == '.'){
+                i++;
+            }
+            if(data[i] == 'A'){
+                i++;
+                while(data[i] != '('){
+                    i++;
+                }
+                i++;
+                if(count>0){
+                    inputs[j] = ',';
+                    j++;
+                }
+                while(data[i] != ')'){
+                    inputs[j] = data[i];
+                    i++;
+                    j++;
+                }
+                count++;
+            }
+            else if(data[i] == 'Z') {
+                j=0;
+                i++;
+                if(data[i] == 'N'){
+                    i++;
+                }
+                
+                if(data[i] == '('){
+                    i++;
+                    while(data[i] != ')'){
+                        outputs[j] = data[i];
+                        j++;
+                        i++;
+                    }
+                }
+            }
+            i++;
+        }
+
+        strcpy(ptr->gate_inputs, inputs);
+        strcpy(ptr->gate_output, outputs);
+}
+
+void setName(struct gate *ptr, char *data) {
+
+int i=0, j=0;
+char name[30];
+
+SetZero(name, 30);
+
+    if(strcmp(ptr->gate_type, "D_Flif_Flop") == 0) {
+        i = 2;
+        while(data[i] != 'D'){
+            // data++;
+            i++;
+        } 
+    }
+    else {
+        while(data[i] != 'U'){
+            i++;
+        }
+    }
+    while (data[i] != '('){
+        name[j] = data[i];
+        j++;
+        i++;
+    }
+    SetZero(ptr->gate_name, 50);
+    strcpy(ptr->gate_name, name);
+}
+
+void setType(struct gate *ptr, char *data) {
+    if(data[0] == 'N') {
+        if(data[1] == 'A') {
+            strcpy(ptr->gate_type, "NAND");
+        }
+        else{
+            strcpy(ptr->gate_type, "NOR");
+        }
+    }
+    if(data[0] == 'A') {
+        strcpy(ptr->gate_type, "AND");
+    }
+    if(data[0] == 'O') {
+        strcpy(ptr->gate_type, "OR");
+    }
+    if(data[0] == 'D') {
+        strcpy(ptr->gate_type, "D_Flif_Flop");
+    }
+    if(data[0] == 'I') {
+        strcpy(ptr->gate_type, "INVERTER");
+    }
+}
+
+void fixFlipFlopWires(struct gate *listhead) {
+    struct gate *temp;
+
+    temp = listhead;
+    while (temp != NULL){
+        if (strcmp(temp->gate_type, "D_Flif_Flop") == 0){
+            temp->outputs[0]->layer = 1;
+            if (temp->outputs[1] != NULL){
+                temp->outputs[1]->layer = 1;
+            }
+            
+        }
+        
+        temp = temp->next;
+    }
+    
+}
+
+void levelGatesInitialList(struct gate *listhead) {
+    struct gate *temp;
+
+    while(allGatesHaveLevels(listhead) != 0) {
+        temp = listhead;
+        while (temp != NULL){
+            //Fix gate layer
+            gateFix(temp);
+            temp = temp->next;
+        }
+    }
+}
+
+void gateFix(struct gate *gateToLevel) {
+    int max = 0;
+    int flag = 0;
+    int counter = 0;
+
+    if(strcmp(gateToLevel->gate_type, "D_Flif_Flop") == 0) {
+        gateToLevel->outputs[0]->layer = 1;
+        if(gateToLevel->outputs[1] != NULL) {
+            gateToLevel->outputs[1]->layer = 1;
+        }
+        return;
+    }
+
+    while (gateToLevel->inputs[counter] != NULL) {
+        if(gateToLevel->inputs[counter]-> layer == -1) {
+            flag = 1;
+            break;
+        }
+        if(max < gateToLevel->inputs[counter]-> layer){
+            max = gateToLevel->inputs[counter]-> layer;
+        }
+        counter++;
+    }
+
+    if(flag != 1) {
+        gateToLevel->layer = max;
+
+        gateToLevel->outputs[0]->layer = max + 1;
+    }
+    else{
+        gateToLevel->layer = -1;
+        gateToLevel->outputs[0]->layer = -1;
+    }
+    
+}
+
+int allGatesHaveLevels(struct gate *listhead) {
+    struct gate *temp;
+
+    temp = listhead;
+    while (temp!=NULL){
+        if (temp->layer < 0){
+            return 1;
+        }
+        
+        temp = temp->next;
+    }
+
+    return 0;
+}
+
+int getMaxLevel(struct gate *head) {
+    struct gate *itterator;
+    int max = 0;
+
+    itterator = head;
+
+    while (itterator != NULL){
+        if(itterator->layer > max){
+            max = itterator->layer;
+        }
+        itterator = itterator->next;
+    } 
+    return max;
+}
+
+void clearPtrs(struct gate *gatesLevel[]) {
+    int counter = 0;
+
+    for(counter=0; counter < 50; counter++){
+        gatesLevel[counter] = NULL;
+    }
+}
+
+struct mapping * leveled(struct gate *head) {
+    struct gate *itterator;
+    struct mapping *headMapping;
+    struct mapping *temp;
+    struct mapping *prev;
+    struct mapping *itteratorThirdList;
+    int level = 0;
+    int positionToAdd = 0;
+    int nodesCreated = 0;
+    int nrOfNodesCreated = 0;
+
+    headMapping = (struct mapping *)malloc(sizeof(struct mapping));
+    if(headMapping == NULL){
+        printf("Error creating new list\n");
+        return NULL;
+    }
+    nrOfNodesCreated++;
+    headMapping->mappingNext = NULL;
+    clearPtrs(headMapping->gatesLevel);
+    prev = headMapping;
+
+    for(nodesCreated=1; nodesCreated <= getMaxLevel(head); nodesCreated++) {
+        temp = (struct mapping *)malloc(sizeof(struct mapping));
+        nrOfNodesCreated++;
+        if(temp == NULL){
+            printf("Error creating new list\n");
+            return NULL;
+        }
+        temp->mappingNext = NULL;
+        clearPtrs(temp->gatesLevel);
+        prev->mappingNext = temp;
+        prev = prev->mappingNext;
+    }
+      
+    itteratorThirdList = headMapping;
+    
+    for(level = 0; level <= getMaxLevel(head); level++){
+        itterator = head;
+
+        positionToAdd = 0;
+
+        while (itterator != NULL){
+            if(itterator->layer == level) {
+                itteratorThirdList->gatesLevel[positionToAdd] = itterator;
+                positionToAdd++;
+            }
+            itterator = itterator->next;
+        }
+
+        itteratorThirdList = itteratorThirdList->mappingNext;
+    }
+
+    return headMapping;
+}
+
+void createNewLeveledList(struct gate *listhead, struct gate *gateList3Head) {
+
+    int level, maxLevel=0;
+    struct gate *temp;
+    struct gate *helper;
+
+    temp = listhead;
+
+    //Get the max level
+    while (temp != NULL){
+        if(maxLevel<temp->layer){
+            maxLevel = temp->layer;
+        }
+        temp = temp->next;
+    }
+
+    temp = listhead;
+
+    level = 0;
+    while (level<=maxLevel){
+        while (temp != NULL){
+            if(temp->layer == level){
+                helper = temp->next;
+                addNode(temp, &listhead, gateList3Head);
+                temp = helper;
+            }
+            else{
+                temp = temp->next;
+            }
+            
+        }
+        level++;
+    }
+}
+
+void addNode(struct gate *node, struct gate **head, struct gate *newList) {
+    struct gate *temp;
+    struct gate *tempOldList;
+    struct gate *tempPrevious;
+
+    //Case node is the head of the list
+    if (*head == node){
+        printf("Head of old list\n");
+        temp = newList;
+        *head = node->next;
+        node->next = NULL;
+        
+        // Case newList is empty
+        if(newList == NULL){
+            copyNode(newList, node);
+            return;
+        }
+        else{ //New list is not empty
+            while(temp != NULL) {
+                if(temp->next == NULL) {
+                    temp->next = node;
+                    return;
+                }
+                temp = temp->next;
+            }
+        }
+    }
+
+    //Random on the list
+    temp = newList;
+    tempOldList = *head;
+    tempOldList = tempOldList->next;
+    tempPrevious = *head;
+
+    while (tempOldList != node){
+        tempOldList = tempOldList->next;
+        tempPrevious = tempPrevious->next;
+    }
+    tempPrevious->next = tempOldList->next;
+    node->next = NULL;
+
+    //Case newList is empty
+    if(newList == NULL){
+        copyNode(newList, node);
+        return;
+    }
+    //Find position to place on the new list
+     while(temp != NULL) {
+        if(temp->next == NULL) {
+            temp->next = node;
+            return;
+        }
+        temp = temp->next;
+    }
+}
+
+void copyNode(struct gate *newList, struct gate *node) {
+    int counter = 0;
+
+    strcpy(newList->gate_name, node->gate_name);
+    strcpy(newList->gate_inputs, node->gate_inputs);
+    strcpy(newList->gate_output, node->gate_output);
+    strcpy(newList->gate_type, node->gate_type);
+    newList->layer = node->layer;
+    newList->outputs[0] = node->outputs[0];
+
+    if(node->outputs[1] != NULL){
+        newList->outputs[1] = node->outputs[1];
+    }
+    while(node->inputs[counter] != NULL){
+        newList->inputs[counter] = node->inputs[counter];
+    }
+     
+}
+
+void adaptToOldCodeInputsLoop(char str[]) {
+    int counter = 5;
+    int i = 0;
+    char temp[4000];
+    SetZero(temp, 4000);
+
+    while(str[counter] != ';') {
+        if(str[counter] == ','){
+            temp[i] = ' ';
+        }
+        else{
+            temp[i] = str[counter];
+        }
+        counter++;
+        i++;
+    }
+
+    SetZero(str, 4000);
+    strcpy(str, temp);
+
+}
+
+void printMapping(struct mapping *head) {
+    while (head != NULL) {
+        for (int i = 0; i < 100; i++) {
+            if (head->gatesLevel[i] != NULL) {
+                printf("Gate name: %s with value: %d\n", head->gatesLevel[i]->gate_name, head->gatesLevel[i]->value);
+            }
+        }
+        head = head->mappingNext;
+    }
+}
+
+// This function runs the circuit
+void run(struct mapping *listOrder, struct wire *headwire){
+
+    struct mapping *iterator;
+    int counter;
+
+    iterator = listOrder;
+    while(iterator != NULL) {
+        counter = 0;
+        while (iterator->gatesLevel[counter] != NULL) {
+            calculateValues(iterator->gatesLevel[counter], headwire);
+            counter++;
+        }
+        iterator = iterator->mappingNext;
+    }
 }

@@ -8,14 +8,13 @@
 module s298 ( GND, VDD, CK, G0, G1, G117, G118, G132, G133, G2, G66, G67 );
   input GND, VDD, CK, G0, G1, G2;
   output G117, G118, G132, G133, G66, G67;
-  wire   G29, G30, G34, G39, G44, G56, G86, G92, G98, G102, G107, G113, G119,
-         G125, n1, n2, n3, n4, n6, n7, n8, n9, n10, n11, n12, n13, n16, n17,
-         n18, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28, n29, n30, n31,
-         n32, n33, n34, n35, n36, n37, n38, n39, n40, n41, n42, n43, n44, n45,
-         n46, n47, n48, n49, n50, n51, n52, n53, n54, n55, n56, n57, n58, n59,
-         n60, n61, n62, n63, n64, n65, n66, n67, n68, n69, n70, n71, n72, n73,
-         n76, n77, n78, n79, n80, n81, n82, n83, n84;
+  wire G29, G30, G34, G39, G44, G56, G86, G92, G98, G102, G107, G113, G119, G125, n1, n2, n3, n4, n6, n7, n8, n9, n10, n11, n12, n13, n16, n17, n18, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28, n29, n30, n31, n32, n33, n34, n35, n36, n37, n38, n39, n40, n41, n42, n43, n44, n45, n46, n47, n48, n49, n50, n51, n52, n53, n54, n55, n56, n57, n58, n59, n60, n61, n62, n63, n64, n65, n66, n67, n68, n69, n70, n71, n72, n73, n76, n77, n78, n79, n80, n81, n82, n83, n84;
 
+  DFF_X1 DFF_0 ( .D(G29), .CK(CK), .Q(n3), .QN(n83) );
+  DFF_X1 DFF_1 ( .D(G30), .CK(CK), .Q(n7), .QN(n81) );
+  DFF_X1 DFF_2 ( .D(G34), .CK(CK), .Q(n10), .QN(n80) );
+  DFF_X1 DFF_3 ( .D(G39), .CK(CK), .Q(n11), .QN(n82) );
+  DFF_X1 DFF_4 ( .D(G44), .CK(CK), .Q(n13), .QN(n79) );
   DFF_X1 DFF_5 ( .D(G56), .CK(CK), .Q(n84), .QN(n72) );
   DFF_X1 DFF_6 ( .D(G86), .CK(CK), .Q(G66) );
   DFF_X1 DFF_7 ( .D(G92), .CK(CK), .Q(G67), .QN(n73) );
@@ -23,13 +22,8 @@ module s298 ( GND, VDD, CK, G0, G1, G117, G118, G132, G133, G2, G66, G67 );
   DFF_X1 DFF_9 ( .D(G102), .CK(CK), .Q(G118), .QN(n78) );
   DFF_X1 DFF_10 ( .D(G107), .CK(CK), .Q(G132) );
   DFF_X1 DFF_11 ( .D(G113), .CK(CK), .Q(G133) );
-  DFF_X1 DFF_0 ( .D(G29), .CK(CK), .Q(n3), .QN(n83) );
   DFF_X1 DFF_12 ( .D(G119), .CK(CK), .Q(n16), .QN(n77) );
   DFF_X1 DFF_13 ( .D(G125), .CK(CK), .Q(n17), .QN(n76) );
-  DFF_X1 DFF_1 ( .D(G30), .CK(CK), .Q(n7), .QN(n81) );
-  DFF_X1 DFF_2 ( .D(G34), .CK(CK), .Q(n10), .QN(n80) );
-  DFF_X1 DFF_3 ( .D(G39), .CK(CK), .Q(n11), .QN(n82) );
-  DFF_X1 DFF_4 ( .D(G44), .CK(CK), .Q(n13), .QN(n79) );
   OR2_X1 U86 ( .A1(n84), .A2(n33), .ZN(n69) );
   INV_X1 U87 ( .A(n46), .ZN(n6) );
   INV_X1 U88 ( .A(n44), .ZN(n2) );
@@ -106,4 +100,3 @@ module s298 ( GND, VDD, CK, G0, G1, G117, G118, G132, G133, G2, G66, G67 );
   NOR2_X1 U159 ( .A1(n72), .A2(n35), .ZN(n34) );
   AND4_X1 U160 ( .A1(n11), .A2(n79), .A3(n36), .A4(n80), .ZN(n35) );
 endmodule
-
